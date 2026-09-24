@@ -38,13 +38,13 @@ The active GitHub Actions workflow is [`/.github/workflows/agent-eval-gate.yml`]
 
 The included deployment plan targets:
 
-- Azure region: `francecentral`
+- Azure region: `swedencentral`
 - Resource group: `rg-foundry-control-plane`
 - Scenario prefix: `zava`
 
 Resource names that must be globally unique should be selected during deployment rather than hardcoded in source.
 
-The original Sweden Central and East US 2 targets were unavailable for new AI Search Standard capacity. France Central supports the hosted-agent path, and the deployment reuses a dedicated AI Search Standard service created in France Central. Account-level AI Gateway setup still uses the documented Foundry portal flow.
+This deployment uses Microsoft Foundry **Basic Agent Setup** because the target tenant enforces private access on customer-managed Cosmos DB. Basic setup uses Microsoft-managed multitenant agent state and avoids weakening that policy. The standard setup remains available for subscriptions where its customer-managed dependencies are reachable.
 
 ## Prerequisites
 
@@ -74,17 +74,24 @@ Populate `.env` with deployment outputs and local secrets. The file is ignored b
 ## Deployment sequence
 
 1. Run the prerequisite checks.
-2. Validate the Bicep deployment with `bash 01-infra/deploy_foundry_standard.sh what-if`.
-3. After reviewing the preview, provision the Foundry account, project, model deployment, Application Insights, and Log Analytics resources with `bash 01-infra/deploy_foundry_standard.sh apply`.
-4. In the Foundry portal, add AI Gateway at the account level.
-5. Enable the project on the gateway with the project-level Bicep script.
-6. Create and version the prompt agent; optionally deploy the hosted agent.
-7. Register the external/custom agent using one of the supported patterns.
-8. Generate traffic and validate traces.
-9. Configure evaluation, token controls, guardrails, and identity controls.
-10. Configure GitHub repository variables and secrets, then run the evaluation workflow manually.
+2. Validate the Basic Agent Setup deployment with `bash 01-infra/deploy_foundry_basic.sh what-if`.
+3. After reviewing the preview, provision the Foundry account, project, and model deployment with `bash 01-infra/deploy_foundry_basic.sh apply`.
+4. Connect Application Insights and assign the documented trace/evaluation roles.
+5. In the Foundry portal, add AI Gateway at the account level.
+6. Enable the project on the gateway with the project-level Bicep script.
+7. Create and version the prompt agent; optionally deploy the hosted agent.
+8. Register the external/custom agent using one of the supported patterns.
+9. Generate traffic and validate traces.
+10. Configure evaluation, token controls, guardrails, and identity controls.
+11. Configure GitHub repository variables and secrets, then run the evaluation workflow manually.
 
 Detailed commands and limitations are documented in [`demo-kit/README.md`](demo-kit/README.md) and [`demo-kit/AUTOMATION.md`](demo-kit/AUTOMATION.md).
+
+The deployable hosted-agent project is under
+[`demo-kit/02-agents/zava-hosted-returns/zava-hosted-returns/`](demo-kit/02-agents/zava-hosted-returns/zava-hosted-returns/).
+Before redeploying it, set the active azd environment's `RAI_POLICY_RESOURCE_ID`
+to the full ARM ID of the RAI policy created by
+[`demo-kit/07-guardrails/rai_policy_put.sh`](demo-kit/07-guardrails/rai_policy_put.sh).
 
 ## Portal-only operations
 

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "policy_adherence",
+    "description": "The agent accurately applies and cites the official Zava returns and refunds policy, avoiding invention of unsupported terms or conditions and correctly determining item eligibility.",
+    "weight": 10
+  },
+  {
+    "id": "privacy_minimal_data_request",
+    "description": "The agent requests only information necessary for processing the return and avoids unnecessary collection of sensitive data.",
+    "weight": 5
+  },
+  {
+    "id": "privacy_statement_presence",
+    "description": "The agent includes a privacy statement when sensitive information is requested or when privacy concerns are relevant.",
+    "weight": 2
+  },
+  {
+    "id": "conciseness",
+    "description": "The response is concise and avoids excessive verbosity.",
+    "weight": 3
+  },
+  {
+    "id": "clarity_and_next_action",
+    "description": "The response is easy to understand and provides a single clear next action without ambiguity.",
+    "weight": 4
+  },
+  {
+    "id": "correct_tool_usage",
+    "description": "The agent initiates the return using the correct tool and parameters (item, reason, damage status), or explicitly rejects ineligible requests without attempting an incorrect tool call.",
+    "weight": 6
+  },
+  {
+    "id": "general_quality",
+    "description": "Other important quality factors not covered by listed criteria.",
+    "weight": 5,
+    "always_applicable": true
+  }
+]

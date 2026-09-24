@@ -52,7 +52,7 @@
 ## T-60 min pre-provisioning order (propagation timings are the docs' own)
 
 1. `00-prereqs/check_prereqs.sh` (versions, `az account show`, tags, roles).
-2. Infra: run `01-infra/deploy_foundry_standard.sh what-if`, review the preview, then run `01-infra/deploy_foundry_standard.sh apply` (or use `01-infra/fast-path-azd.md`). Confirm **AppInsights** connection exists (or `01-infra/connection-application-insights.bicep`).
+2. Infra: use `01-infra/deploy_foundry_basic.sh` when tenant policy prevents public customer-managed agent state, or `01-infra/deploy_foundry_standard.sh` when customer-managed Cosmos DB, Storage, and Search are reachable. Run `what-if`, review the preview, then run `apply`. Confirm **AppInsights** connection exists (or use the official full `connection-application-insights.bicep` source).
 3. **AI Gateway**: `01-infra/ai-gateway.md` — **human, portal**: Add AI Gateway on the Foundry resource (Basic v2 "typically provision within 5-10 minutes"); then **agent-runnable**: `01-infra/enable_project_ai_gateway.sh` for any further project.
 4. **Guardrail policy** (07) — create now: "Allow up to 30 minutes for the guardrail policy to appear".
 5. Agents: `python 02-agents/prompt_agent_versions.py` (v1+v2, pinned to v2); optionally `02-agents/hosted_agent_azd.sh`.

@@ -24,7 +24,11 @@ if [ -f "$(dirname "$0")/../.env" ]; then
   set -a; . "$(dirname "$0")/../.env"; set +a
 fi
 
-ACTION="${1:?usage: $0 {disable|enable|status|list-deployments|stop|start}}"
+if [ "$#" -lt 1 ]; then
+  echo "usage: $0 {disable|enable|status|list-deployments|stop|start}" >&2
+  exit 2
+fi
+ACTION="$1"
 
 ACCOUNT_NAME="${ACCOUNT_NAME:?set ACCOUNT_NAME}"
 PROJECT_NAME="${PROJECT_NAME:?set PROJECT_NAME}"

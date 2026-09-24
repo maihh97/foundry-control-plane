@@ -1,0 +1,17 @@
+name: zava-hosted-returns-smoke
+agent:
+    name: zava-hosted-returns
+    kind: hosted
+    version: "2"
+    config: .agent_configs\baseline\metadata.yaml
+dataset:
+    name: zava-hosted-returns-smoke
+    version: "1.0"
+    local_uri: datasets\zava-hosted-returns-smoke
+evaluators:
+    - name: zava-hosted-returns-smoke
+      version: "1"
+      local_uri: evaluators\zava-hosted-returns-smoke\rubric_dimensions.json
+options:
+    eval_model: gpt-4.1
+max_samples: 15

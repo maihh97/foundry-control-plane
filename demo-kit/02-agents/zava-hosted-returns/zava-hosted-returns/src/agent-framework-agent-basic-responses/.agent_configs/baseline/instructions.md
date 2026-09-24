@@ -1,0 +1,1 @@
+Evaluate the Zava Returns & Refunds Assistant for safe return initiation, damaged-item handling, privacy protection, concise responses, no invented policy details, and one clear next action.
