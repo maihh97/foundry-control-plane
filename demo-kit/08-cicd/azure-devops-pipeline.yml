@@ -1,0 +1,53 @@
+# Foundry Control Plane demo kit — 08 Azure DevOps evaluation gate (AIAgentEvaluation@2, extension tagged "Preview")
+# Derived from (verbatim structure):
+#   https://github.com/microsoft/ai-agent-evals/blob/main/samples/workflows/ado-multiple-agents.yml
+#   https://github.com/microsoft/ai-agent-evals/blob/main/overview.md      (inputs: azure-ai-project-endpoint, deployment-name, data-path, agent-ids, baseline-agent-id)
+#   https://learn.microsoft.com/en-us/azure/foundry/how-to/evaluation-azure-devops   ("(preview)"; "reference it in your pipeline using the AzureCLI@2 task before AIAgentEvaluation@2")
+# VERIFY BEFORE USE: input names below come from the published overview and README rather than the task manifest.
+#   The repo has a V3 task folder but the official sample pins @2 — keep @2. `baseline-agent-id` is documented for the task in overview.md but
+#   is NOT present in the ADO sample file itself (marked below).
+# Prereqs: "The AI Agent Evaluation extension installed in your Azure DevOps organization"; an ARM service connection (Entra ID) in variable group.
+# Results (verbatim): "The report shows evaluation scores for each metric, confidence intervals, and - when you evaluate multiple agents - a
+#   pairwise statistical comparison that indicates whether differences are meaningful or within random variation."
+
+# Trigger manually. Can be updated based on scenarios
+trigger: none
+
+variables:
+  - group: ado-serviceconnection-variable
+  # expected in the group: ADO_SERVICE_CONNECTION_NAME, AZURE_AI_PROJECT_ENDPOINT, DEPLOYMENT_NAME, AGENT_IDS (e.g. zava-returns-assistant:1,zava-returns-assistant:2)
+
+pool:
+  vmImage: "windows-latest"
+
+steps:
+  - task: AzureCLI@2
+    displayName: "Azure CLI login"
+    inputs:
+      azureSubscription: $(ADO_SERVICE_CONNECTION_NAME)
+      addSpnToEnvironment: true
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo "##vso[task.setvariable variable=AZURE_CLIENT_ID]$servicePrincipalId"
+        echo "##vso[task.setvariable variable=AZURE_TENANT_ID]$tenantId"
+        echo "##vso[task.setvariable variable=AZURE_FEDERATED_TOKEN]$idToken"
+        echo "Logged in to Azure CLI"
+
+  - bash: |
+      az login --service-principal -u $(AZURE_CLIENT_ID) --tenant $(AZURE_TENANT_ID) --allow-no-subscriptions --federated-token $(AZURE_FEDERATED_TOKEN)
+    displayName: "Az Login"
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.10"
+
+  - task: AIAgentEvaluation@2
+    displayName: "Evaluate AI Agents"
+    inputs:
+      azure-ai-project-endpoint: $(AZURE_AI_PROJECT_ENDPOINT)
+      deployment-name: $(DEPLOYMENT_NAME)
+      data-path: $(Build.SourcesDirectory)\08-cicd\data\dataset-tiny.json
+      agent-ids: $(AGENT_IDS)
+      # UNVERIFIED for the ADO task (documented in overview.md/README, not in the ADO sample): remove if the task rejects it
+      baseline-agent-id: $(BASELINE_AGENT_ID)

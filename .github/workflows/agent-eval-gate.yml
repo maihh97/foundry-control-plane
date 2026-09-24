@@ -1,0 +1,35 @@
+name: AI Agent Evaluation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DATA_PATH: ${{ github.workspace }}/demo-kit/08-cicd/data/dataset-tiny.json
+  AGENT_IDS: zava-returns-assistant:1,zava-returns-assistant:2
+  BASELINE_AGENT_ID: zava-returns-assistant:1
+
+jobs:
+  evaluate:
+    name: AI Agent Evaluation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Run evaluation
+        uses: microsoft/ai-agent-evals@v3-beta
+        with:
+          azure-ai-project-endpoint: ${{ vars.AZURE_AI_PROJECT_ENDPOINT }}
+          deployment-name: ${{ vars.DEPLOYMENT_NAME }}
+          data-path: ${{ env.DATA_PATH }}
+          agent-ids: ${{ env.AGENT_IDS }}
+          baseline-agent-id: ${{ env.BASELINE_AGENT_ID }}

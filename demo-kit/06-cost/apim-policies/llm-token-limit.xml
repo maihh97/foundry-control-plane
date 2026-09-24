@@ -1,0 +1,28 @@
+<!--
+Foundry Control Plane demo kit - 06 APIM policy: LLM token rate limit (verbatim)
+Source: https://github.com/Azure-Samples/AI-Gateway/blob/main/labs/token-rate-limiting/policy.xml  (lab "token-rate-limiting")
+Reference: https://learn.microsoft.com/en-us/azure/api-management/llm-token-limit-policy
+  "When a specified token rate limit is exceeded, the caller receives a 429 Too Many Requests response status code.
+   When a specified quota is exceeded, the caller receives a 403 Forbidden response status code."
+  Quota variant (Learn example, verbatim): <llm-token-limit counter-key="@(context.Subscription.Id)" token-quota="100000" token-quota-period="Monthly" remaining-quota-tokens-variable-name="remainingQuotaTokens" />
+  Applies to: Developer | Basic | Basic v2 | Standard | Standard v2 | Premium | Premium v2 (not Consumption). Inbound section only.
+Replace {backend-id} with your APIM backend entity. Apply only in a lab APIM; the Foundry-managed gateway is configured by the portal wizard.
+-->
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="{backend-id}" />
+        <llm-token-limit counter-key="@(context.Subscription.Id)"
+            tokens-per-minute="100" estimate-prompt-tokens="false" remaining-tokens-variable-name="remainingTokens">
+        </llm-token-limit>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

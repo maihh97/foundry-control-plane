@@ -1,0 +1,29 @@
+# Foundry Control Plane demo kit — 08 azd evaluation recipe (preview) — verbatim structure, values adapted for the Returns Assistant
+# Source (verbatim "simplified shape"): https://learn.microsoft.com/en-us/azure/foundry/observability/how-to/azure-developer-cli-evaluation
+#         https://github.com/MicrosoftDocs/azure-ai-docs/blob/main/articles/foundry/observability/how-to/azure-developer-cli-evaluation.md
+# Minimal variant (quickstart-evaluate-hosted-agent) uses `dataset: { local_uri: tests/queries.jsonl }` instead of dataset_reference — both quoted as published.
+# Generate/refresh with:  azd ai agent eval generate --gen-instruction "This agent handles fashion e-commerce returns and refunds. Test return initiation, refund timing questions, damaged items, exchanges, and refusal of requests for card numbers." --eval-model <judge-deployment> --max-samples 15
+# Run with:               azd ai agent eval run --config eval.yaml     ("resolves the --config path relative to your agent's source folder under src/… not the current directory.")
+# Then:                   azd ai agent eval list / azd ai agent eval show / azd ai agent optimize --config eval.yaml
+# Rules (verbatim): "Treat version fields as strings, even if they look numeric". "eval run uses the registered version pinned in eval.yaml. To apply local edits, run eval update before eval run."
+# Evaluator refs: "builtin.<name> — references a built-in evaluator provided by Foundry. <name> — references a custom evaluator registered in the Foundry project."
+# Scope: "works with agents that use the responses or invocations protocol with synchronous, non-streaming execution."
+name: zava-returns-assistant
+agent:
+  name: zava-returns-assistant
+  kind: hosted
+  version: "1"
+  config: .agent_configs\baseline\metadata.yaml
+dataset_reference:
+  name: zava-returns-assistant-dev-eval-seed
+  version: "1.0"
+  local_uri: datasets\zava-returns-assistant-dev-eval-seed
+evaluators:
+  - builtin.task_adherence
+  - builtin.intent_resolution
+  - name: zava-returns-assistant-quality
+    version: "1"
+    local_uri: evaluators\zava-returns-assistant-quality\rubric_dimensions.json
+options:
+  eval_model: <JUDGE_MODEL_DEPLOYMENT>
+  max_samples: 15

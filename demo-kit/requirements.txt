@@ -1,0 +1,18 @@
+# Foundry Control Plane demo kit — Python >= 3.10 (azure-ai-projects 2.5.0 dropped 3.9)
+# Sources: azure-ai-projects CHANGELOG (2.7.0, 2026-09-18) https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/ai/azure-ai-projects/CHANGELOG.md
+#          samples README install lines; sample_scheduled_evaluations.py; sample_agent_basic_with_azure_monitor_tracing.py
+#          Trace LangChain/LangGraph https://learn.microsoft.com/en-us/azure/foundry/observability/how-to/trace-agent-framework
+azure-ai-projects==2.7.0
+azure-identity
+python-dotenv
+azure-monitor-opentelemetry
+azure-mgmt-authorization
+azure-mgmt-resource
+# Module 03 — LangGraph custom agent instrumented with the Microsoft OpenTelemetry distro
+microsoft-opentelemetry
+langchain
+langgraph
+langchain-openai
+rich
+# Module 03 — client_via_gateway.py imports `langgraph_sdk`; verify the package against the upstream sample.
+langgraph-sdk

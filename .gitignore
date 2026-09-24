@@ -1,0 +1,40 @@
+# Private source material
+docs/
+research/
+START-HERE.md
+demo-kit/CHANGES-SINCE-PASS1.md
+
+# Local configuration and credentials
+.env
+**/.env
+!.env.example
+*.pem
+*.pfx
+*.key
+
+# Azure and Foundry local state
+.azure/
+**/.foundry/results/
+**/.foundry/datasets/
+**/.foundry/suites/
+
+# Python
+.venv/
+.venv312/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Generated deployment and evaluation output
+foundry-samples/
+demo-kit/foundry-samples/
+evaluation-results/
+red-team-results/
+*.log
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

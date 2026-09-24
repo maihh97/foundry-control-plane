@@ -1,0 +1,39 @@
+<!--
+Foundry Control Plane demo kit - 06 APIM policy: emit LLM token metrics to Application Insights (verbatim)
+Source: https://github.com/Azure-Samples/AI-Gateway/blob/main/labs/token-metrics-emitting/policy.xml  (lab "token-metrics-emitting";
+        commit "Refactor to use the built-in LLM Logging and AI Foundry (#182)")
+Reference: https://learn.microsoft.com/en-us/azure/api-management/llm-emit-token-metric-policy
+  Note: the lab file uses the older policy name `azure-openai-emit-token-metric`; the current Learn reference documents `llm-emit-token-metric`
+  with the same <dimension> children (Learn inline example, verbatim):
+    <llm-emit-token-metric namespace="llm-metrics">
+        <dimension name="Client IP" value="@(context.Request.IpAddress)" />
+        <dimension name="API ID" value="@(context.Api.Id)" />
+        <dimension name="User ID" value="@(context.Request.Headers.GetValueOrDefault("x-user-id", "N/A"))" />
+    </llm-emit-token-metric>
+  "You can configure a maximum of 5 custom dimensions per policy." Prereqs: APIM integrated with Application Insights; App Insights logging
+  enabled for the LLM API; custom metrics with dimensions enabled. Streaming: "set the include_usage parameter to true in the API request."
+Replace {backend-id} with your APIM backend entity.
+Well-formedness note: the "User ID" dimension line is verbatim from both the lab file and the Learn page and nests double quotes inside the
+  value attribute (GetValueOrDefault("x-user-id", "N/A")). APIM's policy editor accepts it; a strict XML parser will flag it. Kept verbatim on purpose.
+-->
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="{backend-id}" />
+        <azure-openai-emit-token-metric namespace="openai">
+            <dimension name="Subscription ID" value="@(context.Subscription.Id)" />
+            <dimension name="Client IP" value="@(context.Request.IpAddress)" />
+            <dimension name="API ID" value="@(context.Api.Id)" />
+            <dimension name="User ID" value="@(context.Request.Headers.GetValueOrDefault("x-user-id", "N/A"))" />
+        </azure-openai-emit-token-metric>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

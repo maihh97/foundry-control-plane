@@ -1,0 +1,28 @@
+<!--
+Foundry Control Plane demo kit - 07 APIM policy: content safety at the gateway, for the CUSTOM (LangGraph) agent (verbatim Learn example)
+Source: https://learn.microsoft.com/en-us/azure/api-management/llm-content-safety-policy   (Last updated 08/19/2026)
+Why here: Foundry agent guardrails apply "only to agents developed in the Foundry Agent Service, not to other agents registered in the
+  Foundry Control Plane" (guardrails overview). For a custom agent proxied by the AI Gateway, APIM's llm-content-safety is the official lever.
+  "The policy can also enforce content safety checks on requests or responses for MCP tools or A2A Agent APIs managed in API Management.
+   When you enable the policy and Azure AI Content Safety detects malicious content, API Management blocks the request or response and
+   returns a 403 error code."
+Prereqs (verbatim): "API Management's managed identity must be configured on the Azure AI Content Safety service with Cognitive Services User role.
+  The Azure AI Content Safety backend URL, referenced by backend-id... needs to be in the form https://<content-safety-service-name>.cognitiveservices.azure.com.
+  The Azure AI Content Safety backend's authorization credentials need to be set to Managed Identity enabled with an exact resource ID of https://cognitiveservices.azure.com."
+Attributes: shield-prompt (default false, "check content for user attacks"); enforce-on-completions (default false); window-size; window-overlap-size;
+  categories output-type="FourSeverityLevels | EightSeverityLevels"; category name="Hate | SelfHarm | Sexual | Violence" threshold 0 (most restrictive)..7; blocklists/id.
+Sections: inbound, outbound. Streaming: "if a content safety violation is detected, stops forwarding further events to the client. A 403 error isn't returned in this case."
+Security note: "Linked access isn't checked when a backend is referenced by using backend-id."
+Example below (verbatim): "blocks requests that contain speech in the Hate or Violence category with a severity level of 4 or higher".
+Note: the AI-Gateway lab includes labs/content-safety/policy.xml; this file uses the published Learn example instead.
+-->
+<policies>
+    <inbound>
+        <llm-content-safety backend-id="content-safety-backend" shield-prompt="true">
+            <categories output-type="EightSeverityLevels">
+                <category name="Hate" threshold="4" />
+                <category name="Violence" threshold="4" />
+            </categories>
+        </llm-content-safety>
+    </inbound>
+</policies>

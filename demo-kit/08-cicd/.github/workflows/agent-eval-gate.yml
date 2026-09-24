@@ -1,0 +1,53 @@
+# Foundry Control Plane demo kit — 08 CI evaluation gate: compare Returns Assistant v1 vs v2 (GitHub Action, Preview @v3-beta)
+# Derived from (verbatim structure):
+#   https://github.com/microsoft/ai-agent-evals/blob/main/samples/workflows/multiple-agents.yml
+#   https://github.com/microsoft/ai-agent-evals/blob/main/action.yml     (inputs: azure-ai-project-endpoint, deployment-name, data-path, agent-ids, baseline-agent-id, api-version)
+#   https://github.com/microsoft/ai-agent-evals   (README: "Use microsoft/ai-agent-evals@v3-beta"; releases: v3-beta Pre-release, Dec 23 2025)
+# CORRECTION vs the sample file: the sample references `microsoft/ai-agent-eval@v3-beta` (singular). The repo is `ai-agent-evals` — use the README form.
+# Data file format: samples/data/dataset-tiny.json -> this kit's data/dataset-tiny.json (5 Returns & Refunds prompts).
+# Agent id format (Learn ADO article): "agent-name:version (e.g., my-agent:1)". Results: "Evaluation results will be output to the summary
+# section for each AI Evaluation GitHub Action run under Actions in GitHub.com."
+#
+# Prerequisites (from the sample header):
+# - Copy to a new GitHub Actions workflow file in the .github/workflows directory.
+# - Update the environment variables for your setup.
+# - Create GitHub Wiki for the repository.
+# - See https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis
+
+name: AI Agent Evaluation
+
+# Update for your setup
+env:
+  data-path: "${{ github.workspace }}/demo-kit/08-cicd/data/dataset-tiny.json"
+  agent-ids: "zava-returns-assistant:1,zava-returns-assistant:2"
+  baseline-agent-id: "zava-returns-assistant:1"
+
+on:
+  # trigger manually (via GitHub Actions UI)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    name: AI Agent Evaluation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Run evaluation
+        uses: microsoft/ai-agent-evals@v3-beta
+        with:
+          azure-ai-project-endpoint: ${{ vars.AZURE_AI_PROJECT_ENDPOINT }}
+          deployment-name: ${{ vars.DEPLOYMENT_NAME }}
+          data-path: ${{ env.data-path }}
+          agent-ids: ${{ env.agent-ids }}
+          baseline-agent-id: ${{ env.baseline-agent-id }}
