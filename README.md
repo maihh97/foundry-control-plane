@@ -77,8 +77,12 @@ Populate `.env` with deployment outputs and local secrets. The file is ignored b
 2. Validate the Basic Agent Setup deployment with `bash 01-infra/deploy_foundry_basic.sh what-if`.
 3. After reviewing the preview, provision the Foundry account, project, and model deployment with `bash 01-infra/deploy_foundry_basic.sh apply`.
 4. Connect Application Insights and assign the documented trace/evaluation roles.
-5. In the Foundry portal, add AI Gateway at the account level.
-6. Enable the project on the gateway with the project-level Bicep script.
+5. Deploy or select an API Management service and apply
+   [`configure_apim_gateway.bicep`](demo-kit/01-infra/configure_apim_gateway.bicep)
+   to configure managed-identity model access, a protected Responses API, and
+   the 100-TPM demo limit.
+6. Use the Foundry portal account-level AI Gateway flow when that preview is
+   enabled for the target tenant; otherwise use the stable APIM endpoint.
 7. Create and version the prompt agent; optionally deploy the hosted agent.
 8. Register the external/custom agent using one of the supported patterns.
 9. Generate traffic and validate traces.
@@ -105,6 +109,11 @@ Current Microsoft documentation requires portal interaction for these control-pl
 - Alerts configuration
 
 Where Microsoft publishes an API, SDK, Bicep, or APIM policy equivalent, the repository links to that alternative.
+
+For environments where the Foundry account-level AI Gateway preview is not
+available, this repository includes a stable APIM alternative. It uses
+system-assigned managed identity for the model backend and requires an APIM
+subscription key from callers.
 
 ## GitHub Actions configuration
 
@@ -134,6 +143,9 @@ Before treating the deployment as complete, verify:
 Use version selection or pinning to roll agents back. Remove or raise APIM limits to undo throttling, disable project gateway linkage to remove gateway routing, and use the agent enable endpoint to recover from a kill-switch test.
 
 Do not run broad teardown commands without reviewing the target resource group. In particular, `azd down` can delete the resource group created by its environment.
+
+API Management Developer is a continuously billed demo resource. Remove it
+after the demonstration if the stable gateway is no longer needed.
 
 ## Important limitations
 

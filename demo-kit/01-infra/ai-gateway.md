@@ -40,6 +40,22 @@ ApiManagementGatewayLogs
 
 Run `bash 01-infra/enable_project_ai_gateway.sh` (env: `FOUNDRY_RG`, `ACCOUNT_NAME`, `PROJECT_NAME`, `APIM_RESOURCE_ID`). It wraps the official command below.
 
+### Stable APIM fallback
+
+If the Foundry account-level preview is not exposed in the tenant, use
+`01-infra/configure_apim_gateway.bicep` against an API Management Developer or
+higher tier. The template:
+
+- enables a system-assigned APIM identity,
+- grants it Cognitive Services User on the Foundry account,
+- exposes `POST /openai/v1/responses`,
+- requires an APIM subscription key, and
+- applies the 100-TPM `llm-token-limit` policy from
+  `06-cost/apim-policies/zava-openai-gateway.xml`.
+
+This provides functional gateway routing and token enforcement, but it does not
+make the portal-only Foundry **Manage > AI Gateway** preview appear.
+
 - **New project on an already gateway-enabled account:** `01-connections/project-ai-gateway` — "This sample creates a new Azure AI Foundry project under an existing, already AI-Gateway-enabled Foundry account and enables the AI Gateway on the new project by default." Deploys the project, an APIM Product, Product↔API association, an APIM Subscription and "ARM resource link (Microsoft.Resources/links) from the project to the product. The presence of this link is what marks the project as Enabled on the gateway." Params: `aiFoundryAccountName`, `projectName`, `apimResourceId` (required), `sharedApiId`.
 
   ```bash

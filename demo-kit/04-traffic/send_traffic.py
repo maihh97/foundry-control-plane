@@ -72,7 +72,7 @@ def main() -> None:
                 elapsed = time.time() - started
                 failed += 1
                 status = getattr(exc, "status_code", None)
-                print(f"[{i + 1}/{args.count}] FAIL {elapsed:.1f}s status={status} {type(exc).__name__}: {str(exc)[:120]}")
+                print(f"[{i + 1}/{args.count}] FAIL {elapsed:.1f}s status={status} {type(exc).__name__}: {exc}")
             if not args.burst:
                 time.sleep(args.pause)
 

@@ -53,7 +53,7 @@
 
 1. `00-prereqs/check_prereqs.sh` (versions, `az account show`, tags, roles).
 2. Infra: use `01-infra/deploy_foundry_basic.sh` when tenant policy prevents public customer-managed agent state, or `01-infra/deploy_foundry_standard.sh` when customer-managed Cosmos DB, Storage, and Search are reachable. Run `what-if`, review the preview, then run `apply`. Confirm **AppInsights** connection exists (or use the official full `connection-application-insights.bicep` source).
-3. **AI Gateway**: `01-infra/ai-gateway.md` — **human, portal**: Add AI Gateway on the Foundry resource (Basic v2 "typically provision within 5-10 minutes"); then **agent-runnable**: `01-infra/enable_project_ai_gateway.sh` for any further project.
+3. **AI Gateway**: use the portal account-level flow when available, or deploy the stable APIM fallback with `01-infra/configure_apim_gateway.bicep`; see `01-infra/ai-gateway.md`.
 4. **Guardrail policy** (07) — create now: "Allow up to 30 minutes for the guardrail policy to appear".
 5. Agents: `python 02-agents/prompt_agent_versions.py` (v1+v2, pinned to v2); optionally `02-agents/hosted_agent_azd.sh`.
 6. **Register the custom agent AFTER App Insights** is connected (`03-custom-agent/register_custom_agent.md`) — "If you configured Application Insights after you registered the custom agent, you need to unregister the agent and register it again." Then copy the APIM URL into `.env`.
@@ -66,12 +66,12 @@
 | Folder | Files | Source of truth |
 |---|---|---|
 | `00-prereqs/` | `check_prereqs.sh`, `roles.md` | quickstart-hosted-agent, manage-hosted-agent, CHANGELOG, disable-preview-features, control-plane role tables |
-| `01-infra/` | `deploy_foundry_standard.sh`, `connection-application-insights.bicep`, `ai-gateway.md` (portal, account level), `enable_project_ai_gateway.sh` (Bicep, project level), `fast-path-azd.md` | foundry-samples 41-standard-agent-setup & 01-connections; enable-ai-api-management-gateway-portal; get-started-with-ai-agents |
+| `01-infra/` | `deploy_foundry_basic.sh`, `deploy_foundry_standard.sh`, `connection-application-insights.bicep`, `configure_apim_gateway.bicep`, `ai-gateway.md`, `enable_project_ai_gateway.sh`, `fast-path-azd.md` | foundry-samples agent setup and connection templates; Azure Verified Modules API Management service; enable-ai-api-management-gateway-portal |
 | `02-agents/` | `prompt_agent_versions.py`, `pin_or_rollback_version.sh`, `hosted_agent_azd.sh` | sample_agent_basic.py; manage-hosted-agent; quickstart-hosted-agent |
 | `03-custom-agent/` | `langgraph_agent.py`, `register_custom_agent.md`, `client_via_gateway.py`, `external_agent_register.py`, `HOSTING-GAP.md` | opentelemetry-distro-python sample; register-custom-agent; sample_external_agents_crud.py; Gap G-1 |
 | `04-traffic/` | `send_traffic.py` | sample_agent_basic.py / telemetry sample; how-to-manage-agents (15 min) |
 | `05-evaluation/` | `continuous_eval_rule.py`, `scheduled_eval_and_redteam.py`, `red_team_prompt_agent.py`, `agent_insights.py`, `alerts.md` | sample_continuous_evaluation_rule.py; sample_scheduled_evaluations.py; sample_redteam_evaluations.py; agent-insights; monitor dashboard; Gap G-2 |
-| `06-cost/` | `token_limit_demo.md`, `burst_test.py`, `apim-policies/llm-token-limit.xml`, `apim-policies/llm-emit-token-metric.xml` | how-to-enforce-limits-models; AI-Gateway labs; llm-* policy references |
+| `06-cost/` | `token_limit_demo.md`, `burst_test.py`, `apim-policies/zava-openai-gateway.xml`, `llm-token-limit.xml`, `llm-emit-token-metric.xml` | how-to-enforce-limits-models; AI-Gateway labs; llm-* policy references |
 | `07-guardrails/` | `guardrail_policy_portal.md` (portal-only guardrail policy), `rai_policy_put.sh` (guardrail config as code), `azure_policy_definitions.sh` (official Foundry Azure Policy samples), `apim-policies/llm-content-safety.xml` | quickstart-create-guardrail-policy; how-to-manage-compliance-security; raiPolicies ARM; add-hosted-agent-guardrails; llm-content-safety |
 | `08-cicd/` | `.github/workflows/agent-eval-gate.yml`, `data/dataset-tiny.json`, `eval.yaml`, `azure-devops-pipeline.yml` | microsoft/ai-agent-evals (v3-beta; AIAgentEvaluation@2); azure-developer-cli-evaluation |
 | `09-identity-killswitch/` | `disable_enable_agent.sh`, `agent_identity_rbac.sh`, `entra_and_agent365_paths.md` | manage-hosted-agent; govern-agent-infrastructure-entra-admin; Entra agent-id admin; M365 agent registry |
