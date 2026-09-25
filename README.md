@@ -34,6 +34,16 @@ All deployable assets are under [`demo-kit/`](demo-kit/):
 
 The active GitHub Actions workflow is [`/.github/workflows/agent-eval-gate.yml`](.github/workflows/agent-eval-gate.yml).
 
+## Interactive demo website
+
+The agent anatomy, security posture, end-to-end flow, and presenter checklist are published at:
+
+<https://maihh97.github.io/foundry-control-plane/>
+
+The site explains why hosted-agent source configuration is not fully visible in the portal and links back to the authoritative `azure.yaml`, Python source, policies, and runbooks.
+
+Use [`demo-kit/DEMO-RUNBOOK.md`](demo-kit/DEMO-RUNBOOK.md) for the complete presenter route and [`demo-kit/07-guardrails/DEFENDER-PURVIEW-DEMO.md`](demo-kit/07-guardrails/DEFENDER-PURVIEW-DEMO.md) for the Defender and Purview-specific story.
+
 ## Target environment
 
 The included deployment plan targets:

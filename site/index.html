@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="description" content="Interactive anatomy, security, and operations tour for the Zava Microsoft Foundry control-plane demo.">
+  <title>Zava Foundry Control Plane</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="Zava control plane home">
+      <span class="brand-mark" aria-hidden="true">Z</span>
+      <span>
+        <strong>Zava Agent Control Plane</strong>
+        <small>Microsoft Foundry demo guide</small>
+      </span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#overview">Overview</a>
+      <a href="#anatomy">Agent anatomy</a>
+      <a href="#operations">Operations</a>
+      <a href="#security">Security</a>
+      <a href="#flow">Flow</a>
+      <a href="#demo">Demo route</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero section" id="overview">
+      <div class="hero-copy">
+        <p class="eyebrow">Deployed control-plane snapshot</p>
+        <h1>See the fleet, runtime boundaries, security controls, and evidence in one place.</h1>
+        <p class="hero-lead">
+          The Foundry portal is the operational plane. This site explains what sits behind each
+          inventory row, where configuration lives, which controls are enforced, and exactly what
+          to show during a full demo.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#demo">Start the demo route</a>
+          <a class="button secondary" href="https://ai.azure.com/" rel="noreferrer">Open Microsoft Foundry</a>
+          <a class="button secondary" href="https://github.com/maihh97/foundry-control-plane" rel="noreferrer">View source</a>
+        </div>
+      </div>
+      <aside class="snapshot-card" aria-label="Deployment snapshot">
+        <div class="snapshot-heading">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>Verified deployment</span>
+        </div>
+        <dl>
+          <div><dt>Project</dt><dd>zava-control</dd></div>
+          <div><dt>Region</dt><dd>Sweden Central</dd></div>
+          <div><dt>Model</dt><dd>gpt-4.1</dd></div>
+          <div><dt>Agent types</dt><dd>Prompt, hosted, external</dd></div>
+          <div><dt>Gateway</dt><dd>APIM Developer</dd></div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="metrics section" aria-label="Verified evidence">
+      <article>
+        <strong>3</strong>
+        <span>agent types registered</span>
+      </article>
+      <article>
+        <strong>21</strong>
+        <span>enabled RAI controls</span>
+      </article>
+      <article>
+        <strong>AI Standard</strong>
+        <span>Defender plan with all extensions on</span>
+      </article>
+      <article>
+        <strong>Connected</strong>
+        <span>Purview plus metered Azure account</span>
+      </article>
+      <article>
+        <strong>100</strong>
+        <span>tokens per minute at gateway</span>
+      </article>
+      <article>
+        <strong>11/15</strong>
+        <span>hosted smoke checks passed</span>
+      </article>
+      <article>
+        <strong>72</strong>
+        <span>red-team safety failures to investigate</span>
+      </article>
+      <article>
+        <strong>12</strong>
+        <span>fresh prompt v2 spans across 6 conversations</span>
+      </article>
+      <article>
+        <strong>5</strong>
+        <span>external LangGraph spans correlated</span>
+      </article>
+    </section>
+
+    <section class="section" id="architecture">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Architecture</p>
+          <h2>One fleet, three runtime ownership models</h2>
+        </div>
+        <span class="legend"><i class="solid-line"></i> request flow <i class="dotted-line"></i> metadata or policy</span>
+      </div>
+
+      <div class="flow-board" role="img" aria-label="Control plane architecture from audience and source through agents, model, gateway, and observability">
+        <div class="flow-column">
+          <h3>Experience</h3>
+          <div class="flow-node accent">Interactive showcase</div>
+          <div class="flow-node">Foundry portal</div>
+          <div class="flow-node">GitHub repository</div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-column">
+          <h3>Control plane</h3>
+          <div class="flow-node accent">Agent inventory</div>
+          <div class="flow-node">Versions and endpoints</div>
+          <div class="flow-node">Evaluations and traces</div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-column fleet-column">
+          <h3>Agent fleet</h3>
+          <div class="flow-node prompt">Prompt agent v2</div>
+          <div class="flow-node hosted">Hosted agent v2</div>
+          <div class="flow-node external">External LangGraph v1</div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-column">
+          <h3>Governed services</h3>
+          <div class="flow-node security">RAI guardrail</div>
+          <div class="flow-node security">APIM gateway</div>
+          <div class="flow-node">gpt-4.1</div>
+          <div class="flow-node">Application Insights</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="anatomy">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Agent anatomy</p>
+          <h2>Select an agent to see what the portal shows and what source control owns.</h2>
+        </div>
+      </div>
+
+      <div class="agent-layout">
+        <div class="agent-tabs" role="tablist" aria-label="Agent types">
+          <button class="agent-tab active" type="button" role="tab" aria-selected="true" data-agent="prompt">
+            <span class="agent-icon prompt">P</span>
+            <span><strong>Prompt agent</strong><small>zava-returns-assistant</small></span>
+          </button>
+          <button class="agent-tab" type="button" role="tab" aria-selected="false" data-agent="hosted">
+            <span class="agent-icon hosted">H</span>
+            <span><strong>Hosted agent</strong><small>zava-hosted-returns</small></span>
+          </button>
+          <button class="agent-tab" type="button" role="tab" aria-selected="false" data-agent="external">
+            <span class="agent-icon external">E</span>
+            <span><strong>External agent</strong><small>zava-returns-langgraph</small></span>
+          </button>
+        </div>
+
+        <article class="agent-detail" aria-live="polite">
+          <div class="agent-detail-header">
+            <div>
+              <p class="eyebrow" id="agent-kind">Foundry prompt agent</p>
+              <h3 id="agent-name">zava-returns-assistant</h3>
+            </div>
+            <span class="status-badge success" id="agent-status">Enabled · version 2</span>
+          </div>
+
+          <p class="agent-summary" id="agent-summary"></p>
+
+          <div class="anatomy-grid" id="anatomy-grid"></div>
+
+          <div class="source-callout">
+            <strong id="source-title">Source of truth</strong>
+            <p id="source-copy"></p>
+            <a id="source-link" href="#" rel="noreferrer">Open the authoritative file</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="operations">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Operational experience map</p>
+          <h2>Why each agent type shows a different set of portal evidence.</h2>
+        </div>
+      </div>
+
+      <div class="capability-matrix-wrap">
+        <table class="capability-matrix">
+          <thead>
+            <tr>
+              <th scope="col">Foundry experience</th>
+              <th scope="col">Prompt agent</th>
+              <th scope="col">Hosted agent</th>
+              <th scope="col">External agent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Traces</th>
+              <td><b class="status-badge success">Populated</b><span>12 fresh version-2 spans in 6 conversations.</span></td>
+              <td><b class="status-badge success">Populated</b><span>191 fresh version-2 telemetry events.</span></td>
+              <td><b class="status-badge success">Populated</b><span>5 spans emitted with the registered OTel agent ID.</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Continuous evaluation</th>
+              <td><b class="status-badge success">Supported</b><span>Response-completed events trigger the enabled rule.</span></td>
+              <td><b class="status-badge warning">Not supported</b><span>The service rejects evaluation rules for hosted agents.</span></td>
+              <td><b class="status-badge warning">Not supported</b><span>The service rejects evaluation rules for external agents.</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Generated evaluation</th>
+              <td><b class="status-badge info">Available</b><span>Use for release or dataset-based testing.</span></td>
+              <td><b class="status-badge info">Completed</b><span>15 smoke cases: 11 passed and 4 failed.</span></td>
+              <td><b class="status-badge info">Custom path</b><span>Evaluate the external runtime with its own dataset and traces.</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Red team</th>
+              <td><b class="status-badge warning">Findings</b><span>Completed scan produced 72 failed attack items.</span></td>
+              <td><b class="status-badge info">Prompt path used</b><span>The demo targets the documented prompt-agent route.</span></td>
+              <td><b class="status-badge info">Runtime-owned</b><span>Test the real external endpoint, not metadata registration.</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Agent Insights</th>
+              <td><b class="status-badge warning">Configured</b><span>The gpt-5-mini monitor and 6-hour schedule exist; fresh scans are currently blocked by a Foundry dependency outage.</span></td>
+              <td><b class="status-badge info">Trace evidence</b><span>Use Application Insights and generated evaluation results.</span></td>
+              <td><b class="status-badge info">Trace evidence</b><span>Requires a running external workload and matching OTel spans.</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section security-section" id="security">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Security and data security</p>
+          <h2>What is enforced, what is evidenced, and what still needs production hardening.</h2>
+        </div>
+        <div class="filter-group" role="group" aria-label="Security control filters">
+          <button class="filter active" type="button" data-filter="all">All</button>
+          <button class="filter" type="button" data-filter="enforced">Enforced</button>
+          <button class="filter" type="button" data-filter="observable">Observable</button>
+          <button class="filter" type="button" data-filter="gap">Hardening gap</button>
+        </div>
+      </div>
+
+      <div class="security-grid">
+        <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>Identity</span><b class="status-badge success">Enforced</b></div>
+          <h3>Entra-only Foundry access</h3>
+          <p>Local key authentication is disabled. Users, project identity, hosted agent identity, APIM, and CI each use separate principals and scoped roles.</p>
+          <small>Evidence: disableLocalAuth is true; APIM has Cognitive Services User.</small>
+        </article>
+        <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>Gateway</span><b class="status-badge success">Enforced</b></div>
+          <h3>Managed-identity model backend</h3>
+          <p>APIM obtains an Entra token for the model. No model key is stored in gateway policy or source control.</p>
+          <small>Caller access still requires an APIM subscription key.</small>
+        </article>
+        <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>Safety</span><b class="status-badge success">Enforced</b></div>
+          <h3>Twenty-one active RAI controls</h3>
+          <p>Jailbreak, harm categories, protected material, Purview, Defender for AI, profanity, and indirect-attack signals are configured.</p>
+          <small>Verified: jailbreak test returned HTTP 400 content_filter.</small>
+        </article>
+        <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>Cost</span><b class="status-badge success">Enforced</b></div>
+          <h3>100 TPM gateway budget</h3>
+          <p>The APIM LLM policy counts tokens by subscription and returns consumed and remaining token headers.</p>
+          <small>Verified: seven HTTP 200 responses followed by five HTTP 429 responses.</small>
+        </article>
+        <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>Response</span><b class="status-badge success">Enforced</b></div>
+          <h3>Agent kill switch</h3>
+          <p>The prompt-agent endpoint can be disabled without deleting versions and re-enabled after investigation.</p>
+          <small>Verified: disabled traffic returned HTTP 403 AgentDisabled.</small>
+        </article>
+        <article class="security-card" data-category="observable">
+          <div class="security-card-head"><span>Telemetry</span><b class="status-badge info">Observable</b></div>
+          <h3>Application and gateway evidence</h3>
+          <p>Application Insights captures agent requests and traces. APIM GatewayLogs, GatewayLlmLogs, and AllMetrics are sent to Log Analytics.</p>
+          <small>Fresh evidence: prompt v2 has 12 spans, hosted v2 has 191 events, and the external agent has 5 correlated spans.</small>
+        </article>
+        <article class="security-card" data-category="observable">
+          <div class="security-card-head"><span>Quality</span><b class="status-badge info">Observable</b></div>
+          <h3>Continuous and release evaluation</h3>
+          <p>Prompt traffic triggers continuous evaluation. Hosted agents use generated batch evaluation because Foundry evaluation rules do not support hosted or external agents.</p>
+          <small>Hosted baseline: 11 of 15 passed; the GitHub evaluation gate completed successfully.</small>
+        </article>
+        <article class="security-card" data-category="observable">
+          <div class="security-card-head"><span>Red team</span><b class="status-badge warning">Findings</b></div>
+          <h3>Behavioral risk is visible</h3>
+          <p>The prompt agent was attacked across prohibited actions, violence, sexual, self-harm, and hate or unfairness categories.</p>
+          <small>Result: 72 failed attack items are available in the Foundry evaluation report for investigation.</small>
+        </article>
+        <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>Defender</span><b class="status-badge success">Enabled</b></div>
+          <h3>Defender for AI Services Standard</h3>
+          <p>AI model scanning, prompt evidence, and prompt sharing with Microsoft Purview are all enabled on the subscription.</p>
+          <small>Foundry Security posture currently reports no recommendations for the selected Zava account.</small>
+        </article>
+        <article class="security-card" data-category="observable">
+          <div class="security-card-head"><span>Purview</span><b class="status-badge info">Connected</b></div>
+          <h3>Foundry data security integration</h3>
+          <p>The Foundry Purview toggle is on, and the subscription is linked through the zava-purview-billing metered account.</p>
+          <small>Foundry-scoped DLP policy selection is pending entitlement propagation, which Purview warns can take a few hours.</small>
+        </article>
+        <article class="security-card" data-category="observable">
+          <div class="security-card-head"><span>Compliance</span><b class="status-badge info">Visible</b></div>
+          <h3>Policy violations and remediation</h3>
+          <p>The Foundry Policies tab contains prompt-injection and healthcare control policies with detected violations and asset counts.</p>
+          <small>Use Policies, Assets, Guardrails, and Security posture as four different evidence views.</small>
+        </article>
+        <article class="security-card" data-category="gap">
+          <div class="security-card-head"><span>Network</span><b class="status-badge warning">Hardening gap</b></div>
+          <h3>Public project endpoint</h3>
+          <p>Basic Agent Setup is publicly reachable but Entra-authenticated. Production isolation requires the official private-network or managed-VNet architecture.</p>
+          <small>Demo rationale: tenant policy blocks public customer-managed Cosmos DB.</small>
+        </article>
+        <article class="security-card" data-category="gap">
+          <div class="security-card-head"><span>CI identity</span><b class="status-badge warning">Hardening gap</b></div>
+          <h3>Client secret instead of OIDC</h3>
+          <p>The requested GitHub client secret is stored only in GitHub Secrets and project-scoped, but workload identity federation is the recommended production path.</p>
+          <small>Rotate the secret and migrate to OIDC.</small>
+        </article>
+        <article class="security-card" data-category="gap">
+          <div class="security-card-head"><span>Purview policy</span><b class="status-badge warning">Propagation</b></div>
+          <h3>Foundry DLP rule not active yet</h3>
+          <p>Purview pay-as-you-go was linked to the demo subscription so Microsoft Foundry can become a selectable DLP location.</p>
+          <small>Create the audit-first Zava policy after the entitlement finishes propagating.</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="flow">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">End-to-end request flow</p>
+          <h2>Follow one request from caller to evidence.</h2>
+        </div>
+      </div>
+      <ol class="request-flow">
+        <li><span>1</span><div><strong>Authenticate</strong><p>Caller uses an APIM subscription key or Entra identity, depending on the entry point.</p></div></li>
+        <li><span>2</span><div><strong>Govern at the gateway</strong><p>APIM authenticates the request, obtains a managed-identity token, counts tokens, and emits diagnostics.</p></div></li>
+        <li><span>3</span><div><strong>Resolve the agent version</strong><p>The prompt endpoint pins version 2; the hosted endpoint resolves immutable hosted version 2.</p></div></li>
+        <li><span>4</span><div><strong>Apply runtime policy</strong><p>The hosted agent applies the RAI policy before model processing and blocks unsafe input.</p></div></li>
+        <li><span>5</span><div><strong>Invoke gpt-4.1</strong><p>The model produces a response under the agent instructions and token budget.</p></div></li>
+        <li><span>6</span><div><strong>Record evidence</strong><p>Requests, dependencies, events, traces, gateway logs, LLM logs, and metrics land in Azure Monitor.</p></div></li>
+        <li><span>7</span><div><strong>Inspect security evidence</strong><p>Defender captures AI prompt evidence and shares enabled evidence with Microsoft Purview for data-policy evaluation.</p></div></li>
+        <li><span>8</span><div><strong>Evaluate and act</strong><p>Evaluations score quality; operators can roll back, throttle, disable, investigate, or redeploy.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section demo-section" id="demo">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Presenter route</p>
+          <h2>A complete 25-minute control-plane demonstration.</h2>
+        </div>
+        <button class="button secondary" type="button" id="reset-demo">Reset checklist</button>
+      </div>
+      <div class="demo-grid" id="demo-grid"></div>
+    </section>
+
+    <section class="section evidence-section" id="evidence">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Evidence and source</p>
+          <h2>Use the right surface for the right question.</h2>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <a href="https://ai.azure.com/" rel="noreferrer"><strong>Microsoft Foundry</strong><span>Fleet inventory, agents, traces, evaluations, identities</span></a>
+        <a href="https://portal.azure.com/" rel="noreferrer"><strong>Azure portal</strong><span>APIM, Application Insights, Log Analytics, RBAC, metrics</span></a>
+        <a href="https://github.com/maihh97/foundry-control-plane/actions" rel="noreferrer"><strong>GitHub Actions</strong><span>Release evaluation evidence</span></a>
+        <a href="https://github.com/maihh97/foundry-control-plane/tree/main/demo-kit" rel="noreferrer"><strong>Source repository</strong><span>Hosted code, prompt definitions, IaC, policies, runbooks</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Fictional Zava scenario. Deployment evidence snapshot generated for the Microsoft Foundry control-plane demonstration.</p>
+    <a href="#overview">Back to top</a>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -21,7 +21,7 @@
 import os
 import time
 from dotenv import load_dotenv
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import (
     AzureAIDataSourceConfig,
@@ -37,9 +37,11 @@ load_dotenv()
 endpoint = os.environ["FOUNDRY_PROJECT_ENDPOINT"]
 agent_name = os.environ.get("FOUNDRY_AGENT_NAME", "zava-returns-assistant")
 model_deployment_name = os.environ["FOUNDRY_MODEL_NAME"]
+rule_id = os.environ.get("CONTINUOUS_EVAL_RULE_ID", "zava-returns-continuous-eval-rule")
+agent_display_name = agent_name.replace("-", " ").title()
 
 with (
-    DefaultAzureCredential() as credential,
+    AzureCliCredential(process_timeout=60) as credential,
     AIProjectClient(endpoint=endpoint, credential=credential) as project_client,
     project_client.get_openai_client() as openai_client,
 ):
@@ -47,6 +49,12 @@ with (
     # Use the agent created in 02-agents/prompt_agent_versions.py
     agent = project_client.agents.get(agent_name=agent_name)
     print(f"Using agent (name: {agent.name})")
+    agent_kind = str(getattr(agent, "kind", "")).lower()
+    if agent_kind in {"hosted", "external"}:
+        raise SystemExit(
+            f"Continuous evaluation rules do not support {agent_kind} agents. "
+            "Use generated evaluation runs and trace-based monitoring for this agent type."
+        )
 
     # Setup agent continuous evaluation
 
@@ -63,16 +71,16 @@ with (
         ),
     ]
     eval_object = openai_client.evals.create(
-        name="Zava Returns Assistant - Continuous Evaluation",
+        name=f"{agent_display_name} - Continuous Evaluation",
         data_source_config=data_source_config,
         testing_criteria=testing_criteria,
     )
     print(f"Evaluation created (id: {eval_object.id}, name: {eval_object.name})")
 
     continuous_eval_rule = project_client.evaluation_rules.create_or_update(
-        id="zava-returns-continuous-eval-rule",
+        id=rule_id,
         evaluation_rule=EvaluationRule(
-            display_name="Zava Returns Assistant - Continuous Eval Rule",
+            display_name=f"{agent_display_name} - Continuous Eval Rule",
             description="An eval rule that runs on agent response completions",
             action=ContinuousEvaluationRuleAction(eval_id=eval_object.id, max_hourly_runs=100),
             event_type=EvaluationRuleEventType.RESPONSE_COMPLETED,

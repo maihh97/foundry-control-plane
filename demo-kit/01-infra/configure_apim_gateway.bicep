@@ -21,6 +21,9 @@ param modelDeploymentName string = 'gpt-4.1'
 @description('Product and subscription name for the Zava demo.')
 param productName string = 'zava-ai'
 
+@description('Existing Log Analytics workspace name for APIM diagnostics.')
+param logAnalyticsWorkspaceName string = '5geiloganalytics'
+
 var cognitiveServicesUserRoleId = subscriptionResourceId(
   'Microsoft.Authorization/roleDefinitions',
   'a97b65f3-24c7-4388-baec-2e87135dc908'
@@ -46,6 +49,10 @@ resource apim 'Microsoft.ApiManagement/service@2024-05-01' existing = {
 
 resource foundryAccount 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' existing = {
   name: foundryAccountName
+}
+
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+  name: logAnalyticsWorkspaceName
 }
 
 resource gatewayInferenceRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -116,6 +123,31 @@ resource subscription 'Microsoft.ApiManagement/service/subscriptions@2024-05-01'
     displayName: 'Zava demo runtime'
     scope: product.id
     state: 'active'
+  }
+}
+
+resource diagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: apim
+  name: 'zava-gateway-logs'
+  properties: {
+    logAnalyticsDestinationType: 'Dedicated'
+    logs: [
+      {
+        category: 'GatewayLogs'
+        enabled: true
+      }
+      {
+        category: 'GatewayLlmLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    workspaceId: logAnalytics.id
   }
 }
 

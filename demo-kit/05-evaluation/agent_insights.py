@@ -14,9 +14,11 @@
 # "The first analysis uses a 7-day lookback window" — on-demand run below uses lookback_hours=3 as in the article.
 #
 # USAGE: python 05-evaluation/agent_insights.py
-# ENV: FOUNDRY_PROJECT_ENDPOINT, FOUNDRY_AGENT_NAME, FOUNDRY_MODEL_NAME (GPT-5 or newer deployment used as judge)
+# ENV: FOUNDRY_PROJECT_ENDPOINT, FOUNDRY_AGENT_NAME, INSIGHTS_MODEL_DEPLOYMENT (optional, defaults to gpt-5-mini),
+#      INSIGHTS_MONITOR_ID (optional, reuses an existing monitor)
 
 import os
+import time
 import uuid
 from dotenv import load_dotenv
 from azure.ai.projects import AIProjectClient
@@ -25,38 +27,61 @@ from azure.ai.projects.models import (
     AgentInsightMonitorUpdate,
     AgentInsightRunCreate,
 )
-from azure.identity import DefaultAzureCredential
+from azure.core.exceptions import HttpResponseError
+from azure.identity import AzureCliCredential
 
 load_dotenv()
 
-credential = DefaultAzureCredential()
+credential = AzureCliCredential(process_timeout=60)
 project_client = AIProjectClient(
     endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
     credential=credential,
     allow_preview=True,
 )
 monitor_operations = project_client.beta.agent_insight_monitors
+model_deployment_name = os.environ.get("INSIGHTS_MODEL_DEPLOYMENT", "gpt-5-mini")
 
-# 1) Create a monitor (disabled schedule for now)
-monitor = monitor_operations.create(
-    AgentInsightMonitorCreate(
-        agent_name=os.environ["FOUNDRY_AGENT_NAME"],
-        model_deployment_name=os.environ["FOUNDRY_MODEL_NAME"],
-        enabled=False,
+# 1) Reuse an existing monitor or create one with its schedule disabled
+print(f"Using Insights judge deployment: {model_deployment_name}", flush=True)
+monitor_id = os.environ.get("INSIGHTS_MONITOR_ID")
+if monitor_id:
+    monitor = monitor_operations.get(monitor_id)
+    print(f"Reusing monitor ID: {monitor.id}", flush=True)
+else:
+    monitor = monitor_operations.create(
+        AgentInsightMonitorCreate(
+            agent_name=os.environ["FOUNDRY_AGENT_NAME"],
+            model_deployment_name=model_deployment_name,
+            enabled=False,
+        )
     )
-)
-print(f"Monitor ID: {monitor.id}")
+    print(f"Created monitor ID: {monitor.id}", flush=True)
 
 # 2) On-demand run over the last 3 hours of production traces
-poller = monitor_operations.begin_create_run(
-    monitor.id,
-    AgentInsightRunCreate(lookback_hours=3),
-    operation_id=str(uuid.uuid4()),
-)
-run_id = poller.details["run_id"]
-print(f"Run ID: {run_id}")
+run_result = None
+run_id = ""
+for attempt in range(1, 4):
+    poller = monitor_operations.begin_create_run(
+        monitor.id,
+        AgentInsightRunCreate(lookback_hours=3),
+        operation_id=str(uuid.uuid4()),
+    )
+    run_id = poller.details["run_id"]
+    print(f"Run ID: {run_id} (attempt {attempt}/3)", flush=True)
+    try:
+        run_result = poller.result()
+        break
+    except HttpResponseError as exc:
+        error_code = getattr(getattr(exc, "error", None), "code", None)
+        is_dependency_unavailable = exc.status_code == 503 or error_code == "ServiceUnavailable"
+        if not is_dependency_unavailable or attempt == 3:
+            raise
+        print("Agent Insights dependency unavailable; retrying in 30 seconds.", flush=True)
+        time.sleep(30)
 
-run_result = poller.result()
+if run_result is None:
+    raise RuntimeError("Agent Insights run did not return a result.")
+
 completed_run = monitor_operations.get_run(monitor.id, run_id)
 print(f"Run status: {completed_run.status}")
 print(f"Traces in window: {run_result.traces_in_window}")

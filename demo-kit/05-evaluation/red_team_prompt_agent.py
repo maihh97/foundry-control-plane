@@ -22,7 +22,7 @@ import os
 import time
 from typing import Union
 from dotenv import load_dotenv
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import (
     AgentVersionDetails,
@@ -79,7 +79,7 @@ def main():
     agent_name = os.environ.get("FOUNDRY_AGENT_NAME", "zava-returns-assistant")
 
     with (
-        DefaultAzureCredential() as credential,
+        AzureCliCredential(process_timeout=60) as credential,
         AIProjectClient(endpoint=endpoint, credential=credential) as project_client,
         project_client.get_openai_client() as client,
     ):

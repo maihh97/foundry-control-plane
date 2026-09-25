@@ -20,7 +20,7 @@ import argparse
 import os
 import time
 from dotenv import load_dotenv
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
 from azure.ai.projects import AIProjectClient
 
 load_dotenv()
@@ -52,7 +52,7 @@ def main() -> None:
     ok = 0
     failed = 0
     with (
-        DefaultAzureCredential() as credential,
+        AzureCliCredential(process_timeout=60) as credential,
         AIProjectClient(endpoint=endpoint, credential=credential) as project_client,
         project_client.get_openai_client(agent_name=agent_name) as openai_client,
     ):
