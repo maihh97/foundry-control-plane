@@ -1,6 +1,6 @@
 # Architecture Diagram
 
-This document shows the deployed Zava Microsoft Foundry control plane and the configuration boundaries for each agent type. It separates platform-managed runtime behavior from source-controlled definitions and external runtime metadata.
+This document shows the deployed Zava Microsoft Foundry control plane and the configuration boundaries for each agent type. It separates platform-managed runtime behavior from source-controlled definitions and the externally hosted LangGraph runtime.
 
 ## Application Architecture
 
@@ -23,9 +23,14 @@ flowchart TD
         RaiPolicy["RAI guardrail policy"]
     end
     subgraph AgentFleet["Agent fleet"]
-        PromptAgent["Prompt agent v2"]
+        PromptAgent["Prompt agent latest v4"]
         HostedAgent["Hosted agent v2"]
-        ExternalAgent["External LangGraph agent"]
+        ExternalAgent["External registration v2"]
+    end
+    subgraph ExternalHosting["External LangGraph hosting"]
+        ExternalRuntime["Container Apps runtime"]
+        RuntimeIdentity["User-assigned identity"]
+        Registry["Private container registry"]
     end
     subgraph ModelGateway["Model and gateway"]
         ApimGateway["API Management gateway"]
@@ -53,10 +58,15 @@ flowchart TD
     PromptAgent -->|"invokes"| ModelDeployment
     HostedAgent -->|"invokes"| ModelDeployment
     ApimGateway -->|"managed identity"| ModelDeployment
+    ApimGateway -->|"routes governed invoke"| ExternalRuntime
+    Registry -->|"supplies image"| ExternalRuntime
+    RuntimeIdentity -.->|"authenticates"| ExternalRuntime
+    ExternalRuntime -->|"managed identity"| ModelDeployment
     RaiPolicy -.->|"blocks unsafe input"| HostedAgent
     PromptAgent -->|"emits traces"| AppInsights
     HostedAgent -->|"emits traces"| AppInsights
-    ExternalAgent -.->|"OpenTelemetry metadata"| AppInsights
+    ExternalAgent -.->|"correlates agent ID"| AppInsights
+    ExternalRuntime -->|"emits OpenTelemetry"| AppInsights
     AppInsights -->|"stores records"| LogWorkspace
     Evaluations -->|"reads traces"| AppInsights
     Workflow -->|"runs evaluations"| Evaluations
@@ -72,10 +82,12 @@ flowchart TD
 |---|---|---:|---|
 | Showcase | HTML, CSS, JavaScript | Browser-native | Public anatomy, security, and demo walkthrough |
 | Control plane | Microsoft Foundry Agent Service | Current service API | Agent inventory, immutable versions, endpoints, identities, evaluations |
-| Prompt agent | Foundry prompt agent | Version 2 | Model plus instructions managed by Foundry |
+| Prompt agent | Foundry prompt agent | Latest version 4 | Model plus instructions managed by Foundry |
 | Hosted agent | Agent Framework and ResponsesHostServer | Python 3.13 runtime | Custom code hosted and built by Foundry |
-| External agent | LangGraph registration metadata | Version 1 | External runtime represented through an OpenTelemetry agent ID |
-| Gateway | Azure API Management Developer | Current Azure API | Managed-identity backend, subscription key, 100 TPM policy |
+| External agent | FastAPI and LangGraph on Azure Container Apps | Registration version 2; runtime image 1.0.0 | Real HTTP runtime correlated to Foundry through an OpenTelemetry agent ID |
+| Gateway | Azure API Management Developer | Current Azure API | Model Responses route plus external-agent health and invoke routes |
+| External runtime identity | User-assigned managed identity | Current Entra identity | Calls the Foundry model without a model key |
+| Container registry | Azure Container Registry Basic | Image 1.0.0 | Private external-agent image |
 | Model | Azure AI Services OpenAI | gpt-4.1 2025-04-14 | Shared model deployment |
 | Observability | Application Insights and Log Analytics | Workspace-based | Requests, dependencies, events, traces, exceptions |
 | Threat protection | Defender for AI Services | Standard plan | Model scanning, prompt evidence, and Purview evidence sharing |
@@ -84,7 +96,7 @@ flowchart TD
 
 ### Data Storage & External Services
 
-The active Foundry project uses Basic Agent Setup, so agent state is stored in Microsoft-managed multitenant resources rather than customer-managed Cosmos DB, Storage, or AI Search. Application telemetry is written to workspace-based Application Insights and Log Analytics. API Management forwards model requests by managed identity and records gateway, LLM, and metric diagnostics in the same Log Analytics workspace. Defender for AI captures prompt evidence and shares enabled evidence with Microsoft Purview. Purview is connected to the subscription through a metered account so Foundry-scoped DLP policy evaluation can be configured.
+The active Foundry project uses Basic Agent Setup, so agent state is stored in Microsoft-managed multitenant resources rather than customer-managed Cosmos DB, Storage, or AI Search. Application telemetry is written to workspace-based Application Insights and Log Analytics. API Management forwards model requests by managed identity and routes external-agent requests to a Container App whose public ingress accepts only the APIM public IP. The external runtime uses its own managed identity for model inference. Defender for AI captures prompt evidence and shares enabled evidence with Microsoft Purview. Purview enforces the Foundry-only Zava sensitive-data policy.
 
 ### Key Architectural Decisions
 
@@ -111,7 +123,10 @@ flowchart LR
     subgraph cExternalLayer["External agent anatomy"]
         cExternalMetadata["External registration"]
         cOtelId["OpenTelemetry agent ID"]
-        cExternalRuntime["Runtime outside Foundry"]
+        cExternalRuntime["Azure Container Apps runtime"]
+        cExternalIdentity["User-assigned managed identity"]
+        cExternalRegistry["Private container registry"]
+        cExternalGateway["Stable APIM invoke route"]
     end
     subgraph cSecurityLayer["Security controls"]
         cEntra["Entra identities and RBAC"]
@@ -133,11 +148,15 @@ flowchart LR
     cSource -->|"packaged by"| cBuild
     cBuild -->|"activates"| cServer
     cExternalMetadata -->|"matches"| cOtelId
-    cExternalRuntime -.->|"emits spans with"| cOtelId
+    cExternalRegistry -->|"supplies image"| cExternalRuntime
+    cExternalIdentity -.->|"authenticates model calls"| cExternalRuntime
+    cExternalGateway -->|"routes requests"| cExternalRuntime
+    cExternalRuntime -->|"emits spans with"| cOtelId
     cEntra -.->|"authorizes"| cPromptName
     cEntra -.->|"authorizes"| cServer
     cRai -.->|"filters"| cServer
     cApim -.->|"governs model traffic"| cServer
+    cApim -.->|"governs external traffic"| cExternalGateway
     cKill -.->|"controls traffic"| cPromptName
     cDefender -.->|"inspects evidence"| cPromptName
     cDefender -.->|"inspects evidence"| cServer
@@ -162,6 +181,10 @@ flowchart LR
 | Responses host server | Hosted | Runtime | Exposes the OpenAI Responses-compatible endpoint |
 | External registration | External | Foundry metadata | Registers the external agent without moving its runtime |
 | OpenTelemetry agent ID | External | Correlation key | Joins external spans to the Foundry inventory item |
+| Azure Container Apps runtime | External | FastAPI and LangGraph | Serves health and invoke operations |
+| User-assigned managed identity | External | Entra workload identity | Authenticates the runtime to the Foundry model |
+| Private container registry | External | Azure Container Registry | Stores the versioned external-agent image |
+| Stable APIM invoke route | External | Governed API | Requires a subscription key, rate limits callers, and is the only allowed backend source |
 | Entra identities and RBAC | Security | Identity control | Separates project, agent, gateway, user, and CI permissions |
 | RAI content policy | Security | Runtime policy | Blocks jailbreak, harmful, protected, Purview, and Defender signals |
 | APIM subscription and token limit | Security | Gateway policy | Authenticates callers and enforces a 100 TPM budget |

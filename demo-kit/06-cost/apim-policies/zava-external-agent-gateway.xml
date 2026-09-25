@@ -1,0 +1,24 @@
+<policies>
+  <inbound>
+    <base />
+    <rate-limit-by-key
+      calls="30"
+      renewal-period="60"
+      counter-key="@(context.Subscription?.Key ?? context.Request.IpAddress)" />
+    <set-header name="X-Correlation-ID" exists-action="skip">
+      <value>@(context.RequestId.ToString())</value>
+    </set-header>
+  </inbound>
+  <backend>
+    <forward-request timeout="120" />
+  </backend>
+  <outbound>
+    <base />
+    <set-header name="X-Zava-Gateway" exists-action="override">
+      <value>external-langgraph</value>
+    </set-header>
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>

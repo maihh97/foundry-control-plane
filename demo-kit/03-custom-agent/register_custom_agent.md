@@ -7,9 +7,9 @@ Derived from (verbatim wizard table, paths and troubleshooting):
 -->
 # 03 · Register the LangGraph agent as a custom agent (Preview)
 
-> **Automation status (verified 24 Sep 2026 — see `AUTOMATION.md`).** **Portal-only, confirmed.** The article documents only the **Register asset** wizard and states "This capability is available only in the Foundry (new) portal"; no REST, SDK or CLI registration is published, and the same is true of **Block/Unblock** for custom agents. The Agent Framework sample docstring confirms the flow: "use the Operate tab to Register an Agent." Code-level nearest alternative: **external agent** registration via SDK (`external_agent_register.py`, `allow_preview=True`) — telemetry and trace-based evaluation only, "No AI Gateway is required", **no Block**, no red teaming. A coding agent should stop here and hand the wizard to a human.
+> **Automation status.** The optional Foundry **Register asset** step remains portal-only. The runtime, managed identity, Container Apps hosting, stable APIM gateway, throttling, backend isolation, and telemetry are deployed as code before this wizard is used.
 
-Prerequisite (verbatim): "An AI gateway configured in your Foundry resource. Foundry uses Azure API Management to register agents as APIs." (see `01-infra/ai-gateway.md`). Your agent must already be reachable at a URL (see `HOSTING-GAP.md` for the honest position on hosting).
+Prerequisite (verbatim): "An AI gateway configured in your Foundry resource. Foundry uses Azure API Management to register agents as APIs." The Zava runtime is reachable through the stable APIM route documented in `EXTERNAL-RUNTIME.md`.
 
 Verification checklist before registering (verbatim): "Your agent exposes an exclusive endpoint. The network where you deploy the Foundry resource can reach the agent's endpoint. The agent communicates by using one of the supported protocols: HTTP (general) or A2A (more specific). Your agent emits data by using the OpenTelemetry semantic conventions for generative AI solutions (or you don't need this capability). You can configure the endpoint that users use to communicate with the agent."
 
@@ -40,12 +40,12 @@ Path: toolbar **Operate** → **Overview** pane → **Register asset**.
 
 | Field | Value |
 |---|---|
-| Agent URL | `<your LangGraph server base URL>` (placeholder — you host it; see HOSTING-GAP.md) |
+| Agent URL | `https://zava-apim-mh2609.azure-api.net/agents/zava-returns-langgraph/` |
 | Protocol | HTTP |
 | OpenTelemetry agent ID | `zava-returns-langgraph` (must equal `agent_id` in `langgraph_agent.py`) |
 | Project | the gateway-enabled demo project |
 | Agent name | `Zava Returns Assistant (LangGraph)` |
-| Description | Custom LangGraph customer-service agent registered for observability, block/unblock and gateway policies |
+| Description | LangGraph returns agent hosted on Azure Container Apps and governed through Azure API Management |
 
 ## Verify and copy the new URL
 
@@ -64,7 +64,7 @@ Path: toolbar **Operate** → **Overview** pane → **Register asset**.
 
 | | Custom agent (this page) | External agent (`external_agent_register.py`) |
 |---|---|---|
-| Traffic | "Foundry uses API Management to act as a proxy for communications to your agent" | "Foundry stores only registration metadata… It doesn't host, proxy, or invoke the runtime." |
-| Gateway | AI gateway required | "No AI Gateway is required." |
+| Traffic | "Foundry uses API Management to act as a proxy for communications to your agent" | Runtime traffic uses the independently deployed stable APIM route; Foundry stores registration metadata and correlates telemetry. |
+| Gateway | Foundry AI gateway required | Stable APIM gateway is deployed independently and verified end to end. |
 | Control | Block/unblock (Operate > Assets > Update status) | Observability + trace-based evaluation only (no Block, no red teaming) |
 | Status | Operate panes = Preview | "(preview)"; header `Foundry-Features: ExternalAgents=V1Preview` / `allow_preview=True` |

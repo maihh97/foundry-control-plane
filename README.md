@@ -44,7 +44,9 @@ The site explains why hosted-agent source configuration is not fully visible in 
 
 Use [`demo-kit/DEMO-RUNBOOK.md`](demo-kit/DEMO-RUNBOOK.md) for the complete presenter route and [`demo-kit/07-guardrails/DEFENDER-PURVIEW-DEMO.md`](demo-kit/07-guardrails/DEFENDER-PURVIEW-DEMO.md) for the Defender and Purview-specific story.
 
-For live operational evidence, deploy [`demo-kit/01-infra/deploy_agent_operations_workbook.bicep`](demo-kit/01-infra/deploy_agent_operations_workbook.bicep). The **Zava Agent Operations** workbook shows agent/version trace coverage, conversations, request failures, latency, operational findings, and telemetry volume while the Foundry Agent Insights preview dependency is unavailable.
+For live operational evidence, run the validated queries in [`demo-kit/05-evaluation/agent_operations.kql`](demo-kit/05-evaluation/agent_operations.kql) against `5geiloganalytics`. They show agent/version trace coverage, conversations, request failures, latency, external-runtime traces, and APIM gateway requests while the Foundry Agent Insights preview dependency is unavailable.
+
+The external LangGraph agent is a deployed service rather than a metadata-only placeholder. [`demo-kit/03-custom-agent/runtime/`](demo-kit/03-custom-agent/runtime/) runs on Azure Container Apps with managed identity to Foundry, while [`deploy_external_agent_runtime.bicep`](demo-kit/01-infra/deploy_external_agent_runtime.bicep) publishes the governed APIM health and invoke operations.
 
 ## Target environment
 

@@ -15,8 +15,8 @@
 #   export APPLICATIONINSIGHTS_CONNECTION_STRING=...   (same App Insights resource the Foundry project uses)
 #   export OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=SPAN_AND_EVENT OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental AZURE_EXPERIMENTAL_ENABLE_GENAI_TRACING=true
 #   python 03-custom-agent/langgraph_agent.py
-# Then register the agent in Foundry with OpenTelemetry agent ID = OTEL_AGENT_ID (see register_custom_agent.md).
-# Hosting the graph as a LangGraph SERVER behind the AI Gateway has no official sample — see HOSTING-GAP.md.
+# Then register the agent in Foundry with OpenTelemetry agent ID = OTEL_AGENT_ID.
+# The deployed HTTP runtime and gateway configuration are under 03-custom-agent/runtime and 01-infra.
 
 import os
 from dotenv import load_dotenv

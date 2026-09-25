@@ -42,20 +42,20 @@ const agents = {
   external: {
     kind: "Foundry external agent",
     name: "zava-returns-langgraph",
-    status: "Enabled · version 1",
+    status: "Registration v2 · runtime 1.0.0",
     summary:
-      "Foundry stores inventory metadata and an OpenTelemetry correlation ID. The actual LangGraph server remains outside Foundry and must emit matching telemetry.",
-    sourceTitle: "Source of truth: external registration code",
+      "Foundry stores inventory metadata and the OpenTelemetry correlation ID. The runtime is deployed on Azure Container Apps and all caller traffic is governed by the stable APIM gateway.",
+    sourceTitle: "Source of truth: runtime and gateway infrastructure",
     sourceCopy:
-      "The registration is metadata-only. It creates no compute, endpoint, gateway route, or application lifecycle inside Foundry.",
-    sourceLink: `${repositoryBase}demo-kit/03-custom-agent/external_agent_register.py`,
+      "The FastAPI runtime owns the LangGraph behavior. Bicep owns managed identity, ACR, Container Apps, APIM routing, backend isolation, throttling, and diagnostics.",
+    sourceLink: `${repositoryBase}demo-kit/03-custom-agent/runtime/src/zava_external_agent/app.py`,
     items: [
-      ["Definition", "ExternalAgentDefinition", "The only runtime binding is the OpenTelemetry agent ID."],
-      ["Runtime", "Outside Foundry", "A real endpoint must be hosted independently before users can invoke it."],
-      ["Telemetry", "OpenTelemetry spans", "Verified records with the matching gen AI agent ID light up traces and the shared operations workbook."],
-      ["Identity", "No hosted runtime identity", "Registration itself is metadata; identity belongs to the external host."],
-      ["Gateway", "Not required", "External registration does not automatically provide throttling or blocking."],
-      ["Operations", "Observe and evaluate", "Use it for fleet inventory and telemetry, not Foundry compute lifecycle."]
+      ["Definition", "ExternalAgentDefinition", "The Foundry inventory binding remains the OpenTelemetry agent ID."],
+      ["Runtime", "Azure Container Apps", "A real FastAPI LangGraph service exposes health and invoke operations."],
+      ["Telemetry", "OpenTelemetry spans", "Post-gateway requests emit matching dependency and trace records into Application Insights and Log Analytics."],
+      ["Identity", "User-assigned managed identity", "The runtime calls the Foundry model without storing a model key."],
+      ["Gateway", "Stable APIM route", "Subscription-key access, 30 calls per minute, correlation IDs, gateway diagnostics, and APIM-only backend ingress."],
+      ["Operations", "Verified end to end", "Direct backend returned 403, anonymous gateway returned 401, and authenticated invoke returned HTTP 200 with a trace ID."]
     ]
   }
 };
@@ -71,7 +71,7 @@ const demoSteps = [
     title: "Show fleet inventory",
     duration: "3 min",
     copy: "Open Foundry Operate and compare type, state, version, identity, and endpoint status.",
-    checks: ["Prompt v2 enabled", "Hosted v2 enabled", "External v1 enabled"]
+    checks: ["Prompt latest v4 running", "Hosted v2 running", "External v2 running"]
   },
   {
     title: "Explain prompt anatomy",
@@ -87,9 +87,9 @@ const demoSteps = [
   },
   {
     title: "Demonstrate gateway governance",
-    duration: "3 min",
-    copy: "Call the protected APIM Responses endpoint and show managed identity, subscription-key access, and token headers.",
-    checks: ["HTTP 200", "consumed-tokens header", "remaining-tokens header"]
+    duration: "4 min",
+    copy: "Call both governed APIM APIs: the model Responses endpoint and the external LangGraph invoke endpoint.",
+    checks: ["Model endpoint HTTP 200", "External agent HTTP 200", "Direct backend HTTP 403", "Anonymous gateway HTTP 401", "Trace ID returned"]
   },
   {
     title: "Trigger throttling",
@@ -112,7 +112,7 @@ const demoSteps = [
   {
     title: "Show observability and evaluation",
     duration: "5 min",
-    copy: "Use the operations matrix, then open prompt, hosted, and external traces, the completed red-team report, continuous evaluation, hosted smoke results, and the Zava Agent Operations workbook.",
+    copy: "Use the operations matrix, then run the validated Log Analytics queries for prompt, hosted, external, and gateway telemetry before opening the evaluation evidence.",
     checks: ["Agent/version trace coverage", "Request latency and failures", "External OTel spans", "72 red-team failures", "11 of 15 hosted checks"]
   }
 ];

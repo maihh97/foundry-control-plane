@@ -1,0 +1,68 @@
+// Select and run one query block at a time in Log Analytics.
+
+// Agent and version coverage
+union AppDependencies, AppRequests, AppTraces
+| where TimeGenerated > ago(7d)
+| extend AgentId = tostring(Properties["gen_ai.agent.id"])
+| extend AgentName = tostring(Properties["gen_ai.agent.name"])
+| extend AgentVersion = tostring(Properties["gen_ai.agent.version"])
+| extend ConversationId = tostring(Properties["gen_ai.conversation.id"])
+| extend Agent = case(
+    isnotempty(AgentName), AgentName,
+    isnotempty(AgentId), tostring(split(AgentId, ":")[0]),
+    AppRoleName
+  )
+| where Agent startswith "zava-"
+| summarize
+    Records = count(),
+    Conversations = dcountif(ConversationId, isnotempty(ConversationId)),
+    Latest = max(TimeGenerated)
+  by Agent, AgentVersion, AppRoleName
+| order by Latest desc
+
+// Prompt-agent request health
+AppDependencies
+| where TimeGenerated > ago(24h)
+| extend AgentId = tostring(Properties["gen_ai.agent.id"])
+| where AgentId startswith "zava-returns-assistant:"
+| summarize
+    Calls = count(),
+    Failures = countif(Success == false),
+    AverageDurationMs = round(avg(DurationMs), 1),
+    P95DurationMs = round(percentile(DurationMs, 95), 1),
+    Conversations = dcount(tostring(Properties["gen_ai.conversation.id"])),
+    Latest = max(TimeGenerated)
+  by AgentId
+
+// Operational findings
+AppDependencies
+| where TimeGenerated > ago(7d)
+| extend AgentId = tostring(Properties["gen_ai.agent.id"])
+| where AgentId startswith "zava-"
+| extend Finding = case(
+    Success == false, "Failed dependency",
+    DurationMs > 5000, "High latency (>5 seconds)",
+    "Healthy"
+  )
+| summarize Occurrences = count(), Latest = max(TimeGenerated) by AgentId, Finding
+| order by Finding asc, Occurrences desc
+
+// External-agent runtime traces
+union AppDependencies, AppRequests, AppTraces
+| where TimeGenerated > ago(30m)
+| where tostring(Properties) contains "zava-returns-langgraph"
+    or AppRoleName == "zava-returns-langgraph"
+| summarize Records = count(), Latest = max(TimeGenerated) by Type, AppRoleName
+| order by Latest desc
+
+// External-agent gateway requests
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(30m)
+| where Url contains "/agents/zava-returns-langgraph"
+| summarize
+    Requests = count(),
+    Successes = countif(ResponseCode == 200),
+    Rejections = countif(ResponseCode in (401, 403, 429)),
+    Latest = max(TimeGenerated)
+  by OperationName
+| order by Latest desc

@@ -6,7 +6,7 @@
 
 **Automation map.** `AUTOMATION.md` states, step by step, what a coding agent can run unattended and which six steps are portal-only on the official record (account-level Add AI Gateway, Register asset, the Token management pane, Create guardrail policy, Block/Unblock for custom agents, Alerts) — with the official code-level equivalent where one exists (project-level gateway Bicep, APIM `llm-token-limit`, RAI policy ARM, `:disable`/`:enable` REST, evaluation-rule SDK).
 
-**Grounding rule.** The implementation is based on the official Microsoft sources in `SOURCES.md`. Where public documentation leaves a gap, the kit ships a clearly labelled guide instead of invented code (`03-custom-agent/HOSTING-GAP.md`, `05-evaluation/alerts.md`). Files with abbreviated official samples carry `Verify against source before running: <URL>`.
+**Grounding rule.** The implementation is based on the official Microsoft sources in `SOURCES.md`. The external LangGraph service is an explicit Zava implementation on documented Azure building blocks; `03-custom-agent/EXTERNAL-RUNTIME.md` separates that implementation from the portal-only Foundry custom-agent registration flow. Files with abbreviated official samples carry `Verify against source before running: <URL>`.
 
 ## Status line (say it once, early)
 
@@ -68,7 +68,7 @@
 | `00-prereqs/` | `check_prereqs.sh`, `roles.md` | quickstart-hosted-agent, manage-hosted-agent, CHANGELOG, disable-preview-features, control-plane role tables |
 | `01-infra/` | `deploy_foundry_basic.sh`, `deploy_foundry_standard.sh`, `connection-application-insights.bicep`, `configure_apim_gateway.bicep`, `ai-gateway.md`, `enable_project_ai_gateway.sh`, `fast-path-azd.md` | foundry-samples agent setup and connection templates; Azure Verified Modules API Management service; enable-ai-api-management-gateway-portal |
 | `02-agents/` | `prompt_agent_versions.py`, `pin_or_rollback_version.sh`, `hosted_agent_azd.sh` | sample_agent_basic.py; manage-hosted-agent; quickstart-hosted-agent |
-| `03-custom-agent/` | `langgraph_agent.py`, `register_custom_agent.md`, `client_via_gateway.py`, `external_agent_register.py`, `HOSTING-GAP.md` | opentelemetry-distro-python sample; register-custom-agent; sample_external_agents_crud.py; Gap G-1 |
+| `03-custom-agent/` | `runtime/`, `EXTERNAL-RUNTIME.md`, `langgraph_agent.py`, `register_custom_agent.md`, `client_via_gateway.py`, `external_agent_register.py` | FastAPI/LangGraph on Container Apps; stable APIM gateway; opentelemetry-distro-python sample; register-custom-agent; sample_external_agents_crud.py |
 | `04-traffic/` | `send_traffic.py` | sample_agent_basic.py / telemetry sample; how-to-manage-agents (15 min) |
 | `05-evaluation/` | `continuous_eval_rule.py`, `scheduled_eval_and_redteam.py`, `red_team_prompt_agent.py`, `agent_insights.py`, `alerts.md` | sample_continuous_evaluation_rule.py; sample_scheduled_evaluations.py; sample_redteam_evaluations.py; agent-insights; monitor dashboard; Gap G-2 |
 | `06-cost/` | `token_limit_demo.md`, `burst_test.py`, `apim-policies/zava-openai-gateway.xml`, `llm-token-limit.xml`, `llm-emit-token-metric.xml` | how-to-enforce-limits-models; AI-Gateway labs; llm-* policy references |
@@ -93,7 +93,6 @@ bash 09-identity-killswitch/disable_enable_agent.sh disable && bash 09-identity-
 
 ## Known gaps you must not paper over
 
-- **G-1** No official sample hosts a LangGraph *server* behind the AI Gateway → `03-custom-agent/HOSTING-GAP.md`.
 - **G-2** No documented route from Foundry **Alerts (preview)** to Azure Monitor action groups → `05-evaluation/alerts.md`.
 - **Red teaming hosted agents** is contradicted between sources → red-team the **prompt** agent only.
 - **30 Sept 2026**: sensitive `gen_ai.*` content moves to the **`AppGenAIContent`** table — any custom KQL/alerts on AppDependencies/AppTraces/AppEvents break that week.

@@ -9,9 +9,9 @@ Use the public showcase as the narrative layer and the Foundry and Azure portals
 1. Open the showcase, Microsoft Foundry, Azure portal, Application Insights, API Management, and the GitHub Actions run.
 2. Verify these resources are healthy:
    - Foundry project `zava-control`
-   - Prompt agent `zava-returns-assistant` version 2
+   - Prompt agent `zava-returns-assistant` latest version 4
    - Hosted agent `zava-hosted-returns` version 2
-   - External agent `zava-returns-langgraph` version 1
+   - External agent `zava-returns-langgraph` registration version 2 and runtime image `1.0.0`
    - API Management `zava-apim-mh2609`
 3. Do not display `.env`, APIM subscription keys, GitHub secrets, connection credentials, or raw prompt content from real users.
 
@@ -69,8 +69,11 @@ Open `zava-returns-langgraph` and explain:
 
 - Registration is metadata-only.
 - `zava-returns-langgraph` is the OpenTelemetry correlation ID.
-- Five current traces appear because the external LangGraph runtime emitted matching spans.
-- There is no Foundry-hosted compute or endpoint to inspect.
+- The runtime is a real FastAPI/LangGraph service on Azure Container Apps.
+- Its user-assigned managed identity calls the Foundry model without a model key.
+- The stable APIM route is `/agents/zava-returns-langgraph/invoke`.
+- Direct backend access returns HTTP 403; anonymous gateway access returns HTTP 401.
+- An authenticated gateway invocation returns HTTP 200 and a trace ID.
 
 ### 6. Demonstrate the gateway
 
@@ -88,6 +91,15 @@ Successful responses return:
 - `remaining-tokens`
 
 The burst test should transition from HTTP 200 to HTTP 429.
+
+Then open the `zava-external-agent` API:
+
+- Backend: `ca-zava-returns-langgraph`
+- Caller authentication: the existing Zava APIM subscription
+- Backend restriction: only the stable APIM public IP can reach Container Apps
+- Policy: 30 calls per minute and `X-Correlation-ID`; verified with 30 HTTP 200 responses followed by five HTTP 429 responses
+- Verified runtime telemetry: seven dependency records and one trace record
+- Verified gateway diagnostics: two successful gateway requests
 
 ### 7. Demonstrate guardrails
 
@@ -161,27 +173,23 @@ Then open:
 - prompt continuous evaluation
 - hosted smoke evaluation
 - the completed prompt-agent red-team report with 72 failed attack items
-- the **Zava Agent Operations** Azure Monitor workbook
+- the validated `05-evaluation/agent_operations.kql` queries in Log Analytics
 - GitHub Actions evaluation gate
 
-Show the fresh attribution evidence:
-
-- prompt version 2: 12 spans across 6 conversations
-- hosted version 2: 191 trace events
-- external LangGraph agent: 5 spans with `gen_ai.agent.id=zava-returns-langgraph`
+Run the fresh attribution blocks in `05-evaluation/agent_operations.kql` so the displayed counts reflect the current environment rather than a stale documentation snapshot.
 
 Explain the service boundary honestly: continuous evaluation rules support prompt agents, but Foundry rejects those rules for hosted and external agents. Use generated evaluation plus trace-based monitoring for the hosted agent, and runtime-owned evaluation plus matching OpenTelemetry spans for the external agent.
 
 The Agent Insights monitor and its 6-hour schedule are configured. The portal run history and SDK both show repeated `ServiceUnavailable` failures from a required Microsoft-managed dependency. Treat this as a current preview-service outage, not a missing model, role, trace, or monitor configuration.
 
-Use the **Zava Agent Operations** workbook as the working insights surface. Show:
+Use the validated Log Analytics queries as the working insights surface. Show:
 
 - agent and version trace coverage
 - prompt request count, conversations, failures, average latency, and P95 latency
 - high-latency and failed-dependency findings
 - prompt, hosted, and external telemetry volume over time
 
-The reproducible deployment is `01-infra/deploy_agent_operations_workbook.bicep`.
+The reproducible query set is `05-evaluation/agent_operations.kql`.
 
 ### 10. Demonstrate lifecycle response
 

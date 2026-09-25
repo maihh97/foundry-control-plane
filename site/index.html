@@ -44,7 +44,7 @@
         <div class="hero-actions">
           <a class="button primary" href="#demo">Start the demo route</a>
           <a class="button secondary" href="https://ai.azure.com/" rel="noreferrer">Open Microsoft Foundry</a>
-          <a class="button secondary" href="https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks" rel="noreferrer">Open operations workbook</a>
+          <a class="button secondary" href="https://portal.azure.com/#view/Microsoft_Azure_Monitoring_Logs/LogsBlade" rel="noreferrer">Open Log Analytics</a>
           <a class="button secondary" href="https://github.com/maihh97/foundry-control-plane" rel="noreferrer">View source</a>
         </div>
       </div>
@@ -97,8 +97,8 @@
         <span>prompt, hosted, and external telemetry</span>
       </article>
       <article>
-        <strong>5 panels</strong>
-        <span>Zava Agent Operations workbook</span>
+        <strong>5 queries</strong>
+        <span>validated agent and gateway operations KQL</span>
       </article>
     </section>
 
@@ -128,9 +128,9 @@
         <div class="flow-arrow" aria-hidden="true">→</div>
         <div class="flow-column fleet-column">
           <h3>Agent fleet</h3>
-          <div class="flow-node prompt">Prompt agent v2</div>
+          <div class="flow-node prompt">Prompt agent latest v4</div>
           <div class="flow-node hosted">Hosted agent v2</div>
-          <div class="flow-node external">External LangGraph v1</div>
+          <div class="flow-node external">External LangGraph reg v2</div>
         </div>
         <div class="flow-arrow" aria-hidden="true">→</div>
         <div class="flow-column">
@@ -173,7 +173,7 @@
               <p class="eyebrow" id="agent-kind">Foundry prompt agent</p>
               <h3 id="agent-name">zava-returns-assistant</h3>
             </div>
-            <span class="status-badge success" id="agent-status">Enabled · version 2</span>
+            <span class="status-badge success" id="agent-status">Running · latest version 4</span>
           </div>
 
           <p class="agent-summary" id="agent-summary"></p>
@@ -210,7 +210,7 @@
           <tbody>
             <tr>
               <th scope="row">Traces</th>
-              <td><b class="status-badge success">Populated</b><span>Published and draft versions, conversations, latency, and failures are live in the workbook.</span></td>
+              <td><b class="status-badge success">Populated</b><span>Published and draft versions, conversations, latency, and failures are live in Log Analytics.</span></td>
               <td><b class="status-badge success">Populated</b><span>Hosted runtime and service spans for versions 1 and 2 are visible.</span></td>
               <td><b class="status-badge success">Populated</b><span>Matching LangGraph OTel records appear beside the managed agents.</span></td>
             </tr>
@@ -235,8 +235,8 @@
             <tr>
               <th scope="row">Agent Insights</th>
               <td><b class="status-badge warning">Preview outage</b><span>The GPT-5 mini monitor exists, but Microsoft’s managed Insights dependency currently returns ServiceUnavailable.</span></td>
-              <td><b class="status-badge info">Workbook live</b><span>Zava Agent Operations shows hosted trace volume, versions, failures, and latency.</span></td>
-              <td><b class="status-badge info">Workbook live</b><span>Matching OTel spans appear alongside prompt and hosted agents in the workbook.</span></td>
+              <td><b class="status-badge info">Logs live</b><span>Validated KQL shows hosted trace volume, versions, failures, and latency.</span></td>
+              <td><b class="status-badge info">Logs live</b><span>Matching OTel spans and gateway requests appear beside the managed agents.</span></td>
             </tr>
           </tbody>
         </table>
@@ -271,6 +271,12 @@
           <small>Caller access still requires an APIM subscription key.</small>
         </article>
         <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>External agent</span><b class="status-badge success">Gateway live</b></div>
+          <h3>Container Apps behind APIM</h3>
+          <p>The external LangGraph runtime uses managed identity for the model and accepts backend traffic only from the stable APIM public IP.</p>
+          <small>Verified: direct backend 403, anonymous APIM 401, authenticated invoke 200 with a trace ID, then 30 health responses followed by five HTTP 429s.</small>
+        </article>
+        <article class="security-card" data-category="enforced">
           <div class="security-card-head"><span>Safety</span><b class="status-badge success">Enforced</b></div>
           <h3>Twenty-one active RAI controls</h3>
           <p>Jailbreak, harm categories, protected material, Purview, Defender for AI, profanity, and indirect-attack signals are configured.</p>
@@ -292,7 +298,7 @@
           <div class="security-card-head"><span>Telemetry</span><b class="status-badge info">Observable</b></div>
           <h3>Application and gateway evidence</h3>
           <p>Application Insights captures agent requests and traces. APIM GatewayLogs, GatewayLlmLogs, and AllMetrics are sent to Log Analytics.</p>
-          <small>Fresh evidence: prompt v2 has 12 spans, hosted v2 has 191 events, and the external agent has 5 correlated spans.</small>
+          <small>Fresh external-gateway evidence: seven dependency records, one trace record, and two successful APIM gateway requests.</small>
         </article>
         <article class="security-card" data-category="observable">
           <div class="security-card-head"><span>Quality</span><b class="status-badge info">Observable</b></div>
@@ -337,10 +343,10 @@
           <small>Rotate the secret and migrate to OIDC.</small>
         </article>
         <article class="security-card" data-category="observable">
-          <div class="security-card-head"><span>Operations</span><b class="status-badge info">Live workbook</b></div>
-          <h3>Zava Agent Operations</h3>
-          <p>The Azure Monitor workbook queries current prompt, hosted, and external telemetry for versions, conversations, request health, high latency, and failures.</p>
-          <small>Use this as the reliable insights surface while the Foundry Agent Insights preview dependency is unavailable.</small>
+          <div class="security-card-head"><span>Operations</span><b class="status-badge info">Live logs</b></div>
+          <h3>Validated operations KQL</h3>
+          <p>Direct Log Analytics queries cover versions, conversations, request health, high latency, failures, external-agent traces, and APIM gateway requests.</p>
+          <small>Use `agent_operations.kql` while the Foundry Agent Insights preview dependency is unavailable.</small>
         </article>
       </div>
     </section>
@@ -384,7 +390,7 @@
       </div>
       <div class="evidence-grid">
         <a href="https://ai.azure.com/" rel="noreferrer"><strong>Microsoft Foundry</strong><span>Fleet inventory, agents, traces, evaluations, identities</span></a>
-        <a href="https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks" rel="noreferrer"><strong>Azure Monitor Workbooks</strong><span>Zava Agent Operations: versions, latency, failures, and trace volume</span></a>
+        <a href="https://portal.azure.com/#view/Microsoft_Azure_Monitoring_Logs/LogsBlade" rel="noreferrer"><strong>Log Analytics</strong><span>Validated versions, latency, failures, external traces, and gateway queries</span></a>
         <a href="https://github.com/maihh97/foundry-control-plane/actions" rel="noreferrer"><strong>GitHub Actions</strong><span>Release evaluation evidence</span></a>
         <a href="https://github.com/maihh97/foundry-control-plane/tree/main/demo-kit" rel="noreferrer"><strong>Source repository</strong><span>Hosted code, prompt definitions, IaC, policies, runbooks</span></a>
       </div>
