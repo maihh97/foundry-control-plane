@@ -31,31 +31,29 @@ In Microsoft Foundry, open **Operate > Compliance > Data security and governance
 - **Enable Purview** is on.
 - The Foundry page confirms Purview is connected.
 - The tenant is linked to Azure subscription billing through the `zava-purview-billing` Purview account in `rg-foundry-control-plane`.
+- The DLP policy **Zava AI sensitive data protection** has been created.
 
-Microsoft Purview states that entitlement changes can take up to a few hours to appear. Until propagation completes, the DLP wizard shows **Microsoft Foundry** but does not allow the location to be selected.
-
-## Zava DLP policy design
-
-Create this policy after the Microsoft Foundry location becomes selectable:
+## Deployed Zava DLP policy
 
 | Setting | Value |
 |---|---|
 | Name | `Zava AI sensitive data protection` |
-| Description | Audit sensitive personal and payment information used with Zava AI apps and agents before enforcing user restrictions. |
+| Description | Audit sensitive personal, payment, identity, and credential data used with Zava AI apps and agents before enabling user restrictions. |
 | Template | Custom policy |
 | Admin units | Full directory |
 | Location | Microsoft Foundry only |
-| Mode | Simulation first |
+| Mode | On |
+| Rule | `Detect Zava sensitive AI prompts and responses` |
+| Sensitive information types | Credit Card Number; All Credential Types |
+| Action | Restrict Microsoft Foundry Apps: block matching text prompts |
+| Incident reports | Admin alert for every matching activity |
 
-Suggested sensitive information conditions:
+Open **Microsoft Purview > Data Loss Prevention > Policies**, select the Zava policy, and show:
 
-- Credit card number
-- UK National Insurance number
-- Passport number
-- Bank account number
-- Credentials or secrets where an available classifier exists
-
-Start in simulation mode without user notifications. Use policy matches and false-positive review to establish a baseline before moving to user warnings or blocking.
+- Only **Microsoft Foundry** appears under Locations.
+- The rule condition contains the two deployed sensitive-information types.
+- **Restrict Microsoft Foundry Apps** is the selected action.
+- DLP alerts are enabled so policy matches can be investigated.
 
 ## Data flow to explain
 
@@ -63,8 +61,8 @@ Start in simulation mode without user notifications. Use policy matches and fals
 2. Defender for AI Services captures enabled AI prompt evidence.
 3. `AIPromptSharingWithPurview` makes eligible evidence available to Purview.
 4. Purview evaluates Foundry-scoped DLP conditions.
-5. Audit-first policy matches appear in Purview for investigation.
-6. After validation, administrators can move from simulation to enforcement.
+5. Matching Foundry text prompts are blocked and generate an administrator alert.
+6. Administrators investigate matches in Purview DLP alerts and tune the rule if required.
 
 ## Important caveats
 

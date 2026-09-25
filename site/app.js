@@ -4,7 +4,7 @@ const agents = {
   prompt: {
     kind: "Foundry prompt agent",
     name: "zava-returns-assistant",
-    status: "Enabled · version 2",
+    status: "Running · latest version 4",
     summary:
       "Foundry owns the versioned definition. The deployed object is primarily a model reference, instructions, endpoint protocol, version selector, and unique Entra agent identity.",
     sourceTitle: "Source of truth: prompt creation code",
@@ -13,7 +13,7 @@ const agents = {
     sourceLink: `${repositoryBase}demo-kit/02-agents/prompt_agent_versions.py`,
     items: [
       ["Definition", "PromptAgentDefinition", "Model gpt-4.1 plus instructions; no custom container."],
-      ["Versioning", "Immutable versions 1 and 2", "A FixedRatio selector sends 100 percent of endpoint traffic to version 2."],
+      ["Versioning", "Immutable published versions", "The portal currently shows version 4 as latest; source control preserves the initial versioning and rollback pattern."],
       ["Protocol", "OpenAI Responses", "Conversation history is managed through the project endpoint."],
       ["Identity", "Unique agent identity", "The inventory exposes an Entra blueprint and instance identity."],
       ["Operations", "Disable and enable", "The endpoint can be stopped without deleting configuration or versions."],
@@ -52,7 +52,7 @@ const agents = {
     items: [
       ["Definition", "ExternalAgentDefinition", "The only runtime binding is the OpenTelemetry agent ID."],
       ["Runtime", "Outside Foundry", "A real endpoint must be hosted independently before users can invoke it."],
-      ["Telemetry", "OpenTelemetry spans", "Five verified spans with the matching gen AI agent ID now light up the trace experience."],
+      ["Telemetry", "OpenTelemetry spans", "Verified records with the matching gen AI agent ID light up traces and the shared operations workbook."],
       ["Identity", "No hosted runtime identity", "Registration itself is metadata; identity belongs to the external host."],
       ["Gateway", "Not required", "External registration does not automatically provide throttling or blocking."],
       ["Operations", "Observe and evaluate", "Use it for fleet inventory and telemetry, not Foundry compute lifecycle."]
@@ -100,8 +100,8 @@ const demoSteps = [
   {
     title: "Show security and data controls",
     duration: "4 min",
-    copy: "Open Compliance Policies, Security posture, and Data security and governance. Then show Defender plan extensions and the Purview billing link.",
-    checks: ["Defender AI Standard", "Model scanner enabled", "Purview toggle enabled", "Policy violations visible"]
+    copy: "Open Compliance Policies, Security posture, and Data security and governance. Then show the active Foundry-only Purview DLP policy and Defender plan extensions.",
+    checks: ["Defender AI Standard", "Model scanner enabled", "Foundry-only DLP active", "Credit-card and credential rule", "Policy violations visible"]
   },
   {
     title: "Prove the kill switch",
@@ -112,8 +112,8 @@ const demoSteps = [
   {
     title: "Show observability and evaluation",
     duration: "5 min",
-    copy: "Use the operations matrix, then open prompt, hosted, and external traces, the completed red-team report, continuous evaluation, hosted smoke results, and Agent Insights.",
-    checks: ["12 prompt v2 spans", "191 hosted v2 events", "5 external spans", "72 red-team failures", "11 of 15 hosted checks"]
+    copy: "Use the operations matrix, then open prompt, hosted, and external traces, the completed red-team report, continuous evaluation, hosted smoke results, and the Zava Agent Operations workbook.",
+    checks: ["Agent/version trace coverage", "Request latency and failures", "External OTel spans", "72 red-team failures", "11 of 15 hosted checks"]
   }
 ];
 

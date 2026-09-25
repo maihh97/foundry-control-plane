@@ -123,8 +123,10 @@ Purview status:
 
 - Tenant integration enabled in Foundry
 - Pay-as-you-go linked to `zava-purview-billing`
-- Foundry DLP location entitlement can take a few hours to propagate
-- Create the Zava audit-first DLP policy only after Microsoft Foundry becomes selectable
+- `Zava AI sensitive data protection` created and scoped only to Microsoft Foundry
+- Credit Card Number and All Credential Types conditions
+- Restrict Microsoft Foundry Apps action blocks matching text prompts
+- Admin alert generated for every policy match
 
 Also explain the architecture caveat:
 
@@ -159,7 +161,7 @@ Then open:
 - prompt continuous evaluation
 - hosted smoke evaluation
 - the completed prompt-agent red-team report with 72 failed attack items
-- Agent Insights monitor configuration using the `gpt-5-mini` judge deployment
+- the **Zava Agent Operations** Azure Monitor workbook
 - GitHub Actions evaluation gate
 
 Show the fresh attribution evidence:
@@ -170,7 +172,16 @@ Show the fresh attribution evidence:
 
 Explain the service boundary honestly: continuous evaluation rules support prompt agents, but Foundry rejects those rules for hosted and external agents. Use generated evaluation plus trace-based monitoring for the hosted agent, and runtime-owned evaluation plus matching OpenTelemetry spans for the external agent.
 
-The Agent Insights monitor and its 6-hour schedule are configured. The first run completed before fresh prompt traces arrived and analyzed zero traces; three fresh reruns later reached the monitor but failed with the same Foundry `ServiceUnavailable` dependency error. Treat this as a current preview-service outage, not a missing model, role, trace, or monitor configuration.
+The Agent Insights monitor and its 6-hour schedule are configured. The portal run history and SDK both show repeated `ServiceUnavailable` failures from a required Microsoft-managed dependency. Treat this as a current preview-service outage, not a missing model, role, trace, or monitor configuration.
+
+Use the **Zava Agent Operations** workbook as the working insights surface. Show:
+
+- agent and version trace coverage
+- prompt request count, conversations, failures, average latency, and P95 latency
+- high-latency and failed-dependency findings
+- prompt, hosted, and external telemetry volume over time
+
+The reproducible deployment is `01-infra/deploy_agent_operations_workbook.bicep`.
 
 ### 10. Demonstrate lifecycle response
 

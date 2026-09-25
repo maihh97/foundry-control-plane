@@ -44,6 +44,8 @@ The site explains why hosted-agent source configuration is not fully visible in 
 
 Use [`demo-kit/DEMO-RUNBOOK.md`](demo-kit/DEMO-RUNBOOK.md) for the complete presenter route and [`demo-kit/07-guardrails/DEFENDER-PURVIEW-DEMO.md`](demo-kit/07-guardrails/DEFENDER-PURVIEW-DEMO.md) for the Defender and Purview-specific story.
 
+For live operational evidence, deploy [`demo-kit/01-infra/deploy_agent_operations_workbook.bicep`](demo-kit/01-infra/deploy_agent_operations_workbook.bicep). The **Zava Agent Operations** workbook shows agent/version trace coverage, conversations, request failures, latency, operational findings, and telemetry volume while the Foundry Agent Insights preview dependency is unavailable.
+
 ## Target environment
 
 The included deployment plan targets:

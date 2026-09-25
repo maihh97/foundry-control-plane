@@ -44,6 +44,7 @@
         <div class="hero-actions">
           <a class="button primary" href="#demo">Start the demo route</a>
           <a class="button secondary" href="https://ai.azure.com/" rel="noreferrer">Open Microsoft Foundry</a>
+          <a class="button secondary" href="https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks" rel="noreferrer">Open operations workbook</a>
           <a class="button secondary" href="https://github.com/maihh97/foundry-control-plane" rel="noreferrer">View source</a>
         </div>
       </div>
@@ -76,8 +77,8 @@
         <span>Defender plan with all extensions on</span>
       </article>
       <article>
-        <strong>Connected</strong>
-        <span>Purview plus metered Azure account</span>
+        <strong>DLP active</strong>
+        <span>Foundry-only credit-card and credential protection</span>
       </article>
       <article>
         <strong>100</strong>
@@ -92,12 +93,12 @@
         <span>red-team safety failures to investigate</span>
       </article>
       <article>
-        <strong>12</strong>
-        <span>fresh prompt v2 spans across 6 conversations</span>
+        <strong>Live</strong>
+        <span>prompt, hosted, and external telemetry</span>
       </article>
       <article>
-        <strong>5</strong>
-        <span>external LangGraph spans correlated</span>
+        <strong>5 panels</strong>
+        <span>Zava Agent Operations workbook</span>
       </article>
     </section>
 
@@ -209,9 +210,9 @@
           <tbody>
             <tr>
               <th scope="row">Traces</th>
-              <td><b class="status-badge success">Populated</b><span>12 fresh version-2 spans in 6 conversations.</span></td>
-              <td><b class="status-badge success">Populated</b><span>191 fresh version-2 telemetry events.</span></td>
-              <td><b class="status-badge success">Populated</b><span>5 spans emitted with the registered OTel agent ID.</span></td>
+              <td><b class="status-badge success">Populated</b><span>Published and draft versions, conversations, latency, and failures are live in the workbook.</span></td>
+              <td><b class="status-badge success">Populated</b><span>Hosted runtime and service spans for versions 1 and 2 are visible.</span></td>
+              <td><b class="status-badge success">Populated</b><span>Matching LangGraph OTel records appear beside the managed agents.</span></td>
             </tr>
             <tr>
               <th scope="row">Continuous evaluation</th>
@@ -233,9 +234,9 @@
             </tr>
             <tr>
               <th scope="row">Agent Insights</th>
-              <td><b class="status-badge warning">Configured</b><span>The gpt-5-mini monitor and 6-hour schedule exist; fresh scans are currently blocked by a Foundry dependency outage.</span></td>
-              <td><b class="status-badge info">Trace evidence</b><span>Use Application Insights and generated evaluation results.</span></td>
-              <td><b class="status-badge info">Trace evidence</b><span>Requires a running external workload and matching OTel spans.</span></td>
+              <td><b class="status-badge warning">Preview outage</b><span>The GPT-5 mini monitor exists, but Microsoft’s managed Insights dependency currently returns ServiceUnavailable.</span></td>
+              <td><b class="status-badge info">Workbook live</b><span>Zava Agent Operations shows hosted trace volume, versions, failures, and latency.</span></td>
+              <td><b class="status-badge info">Workbook live</b><span>Matching OTel spans appear alongside prompt and hosted agents in the workbook.</span></td>
             </tr>
           </tbody>
         </table>
@@ -311,11 +312,11 @@
           <p>AI model scanning, prompt evidence, and prompt sharing with Microsoft Purview are all enabled on the subscription.</p>
           <small>Foundry Security posture currently reports no recommendations for the selected Zava account.</small>
         </article>
-        <article class="security-card" data-category="observable">
-          <div class="security-card-head"><span>Purview</span><b class="status-badge info">Connected</b></div>
-          <h3>Foundry data security integration</h3>
-          <p>The Foundry Purview toggle is on, and the subscription is linked through the zava-purview-billing metered account.</p>
-          <small>Foundry-scoped DLP policy selection is pending entitlement propagation, which Purview warns can take a few hours.</small>
+        <article class="security-card" data-category="enforced">
+          <div class="security-card-head"><span>Purview</span><b class="status-badge success">Enforced</b></div>
+          <h3>Foundry-only DLP policy</h3>
+          <p><strong>Zava AI sensitive data protection</strong> is scoped only to Microsoft Foundry and detects credit-card numbers and all credential types.</p>
+          <small>The rule blocks matching Foundry text prompts when enforced and sends admin alerts for every match.</small>
         </article>
         <article class="security-card" data-category="observable">
           <div class="security-card-head"><span>Compliance</span><b class="status-badge info">Visible</b></div>
@@ -335,11 +336,11 @@
           <p>The requested GitHub client secret is stored only in GitHub Secrets and project-scoped, but workload identity federation is the recommended production path.</p>
           <small>Rotate the secret and migrate to OIDC.</small>
         </article>
-        <article class="security-card" data-category="gap">
-          <div class="security-card-head"><span>Purview policy</span><b class="status-badge warning">Propagation</b></div>
-          <h3>Foundry DLP rule not active yet</h3>
-          <p>Purview pay-as-you-go was linked to the demo subscription so Microsoft Foundry can become a selectable DLP location.</p>
-          <small>Create the audit-first Zava policy after the entitlement finishes propagating.</small>
+        <article class="security-card" data-category="observable">
+          <div class="security-card-head"><span>Operations</span><b class="status-badge info">Live workbook</b></div>
+          <h3>Zava Agent Operations</h3>
+          <p>The Azure Monitor workbook queries current prompt, hosted, and external telemetry for versions, conversations, request health, high latency, and failures.</p>
+          <small>Use this as the reliable insights surface while the Foundry Agent Insights preview dependency is unavailable.</small>
         </article>
       </div>
     </section>
@@ -383,7 +384,7 @@
       </div>
       <div class="evidence-grid">
         <a href="https://ai.azure.com/" rel="noreferrer"><strong>Microsoft Foundry</strong><span>Fleet inventory, agents, traces, evaluations, identities</span></a>
-        <a href="https://portal.azure.com/" rel="noreferrer"><strong>Azure portal</strong><span>APIM, Application Insights, Log Analytics, RBAC, metrics</span></a>
+        <a href="https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks" rel="noreferrer"><strong>Azure Monitor Workbooks</strong><span>Zava Agent Operations: versions, latency, failures, and trace volume</span></a>
         <a href="https://github.com/maihh97/foundry-control-plane/actions" rel="noreferrer"><strong>GitHub Actions</strong><span>Release evaluation evidence</span></a>
         <a href="https://github.com/maihh97/foundry-control-plane/tree/main/demo-kit" rel="noreferrer"><strong>Source repository</strong><span>Hosted code, prompt definitions, IaC, policies, runbooks</span></a>
       </div>
